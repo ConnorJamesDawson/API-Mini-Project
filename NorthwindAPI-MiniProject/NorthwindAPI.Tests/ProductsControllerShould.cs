@@ -105,11 +105,11 @@ internal class ProductsControllerShould
         Mock
         .Get(mockService)
         .Setup(sc => sc.GetAsync(1).Result)
-        .Returns((Product)null);
+        .Returns<Task>(null);
 
         var sut = new ProductsController(mockService);
         var result = await sut.GetProduct(1);
-        Assert.That(result.Value, Is.InstanceOf<NotFoundResult>());
+        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
     }
 
 

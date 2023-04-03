@@ -1,5 +1,3 @@
-﻿namespace NorthwindAPI_MiniProject.Data.Repository;
+﻿using NorthwindAPI_MiniProject.Models;
 
-public class ProductsRepository
-{
-}
+namespace NorthwindAPI_MiniProject.Data.Repository;
