@@ -14,6 +14,11 @@ namespace NorthwindAPI_MiniProject
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddControllers()
+            .AddNewtonsoftJson(
+            opt => opt.SerializerSettings
+            .ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -1,4 +1,4 @@
-﻿namespace NorthwindAPI_MiniProject.Models.DTO
+﻿namespace NorthwindAPI_MiniProject.Models
 {
     public class CustomerDTO
     {
