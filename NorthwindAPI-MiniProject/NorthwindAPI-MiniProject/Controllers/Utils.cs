@@ -1,5 +1,5 @@
-﻿using NorthwindAPI_MiniProject.Models.DTO;
-using NorthwindAPI_MiniProject.Models;
+﻿using NorthwindAPI_MiniProject.Models;
+using NorthwindAPI_MiniProject.Models.DTO;
 
 namespace NorthwindAPI_MiniProject.Controllers;
 
@@ -12,5 +12,19 @@ public static class Utils
         SupplierId = product.SupplierId,
         CategoryId = product.CategoryId,
         UnitPrice = product.UnitPrice,
+        QuantityPerUnit = product.QuantityPerUnit
+    };
+
+    public static OrderDTO OrderToDTO(Order order) => new OrderDTO
+    {
+        OrderId = order.OrderId,
+        CustomerId = order.CustomerId,
+        OrderDate = order.OrderDate,
+        ShippedDate = order.ShippedDate,
+        ShipAddress = order.ShipAddress,
+        ShipCity = order.ShipCity,
+        ShipRegion = order.ShipRegion,
+        ShipPostalCode = order.ShipPostalCode,
+        ShipCountry = order.ShipCountry
     };
 }
