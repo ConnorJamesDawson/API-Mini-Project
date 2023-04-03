@@ -36,7 +36,7 @@ namespace NorthwindAPI_MiniProject
 
             //builder.Services.AddScoped<INorthwindRepository<Customer>, CustomersRepository>();
             //builder.Services.AddScoped<INorthwindRepository<Product>, ProductsRepository>();
-            //builder.Services.AddScoped<INorthwindRepository<Orders>, OrdersRepository>();
+            builder.Services.AddScoped<INorthwindRepository<Order>, OrderRepository>();
 
 
 
