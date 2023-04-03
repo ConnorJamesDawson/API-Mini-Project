@@ -24,4 +24,6 @@ public partial class Product
     public short? ReorderLevel { get; set; }
 
     public bool Discontinued { get; set; }
+
+    public virtual ICollection<OrderDetail> OrderDetails { get; } = new List<OrderDetail>();
 }

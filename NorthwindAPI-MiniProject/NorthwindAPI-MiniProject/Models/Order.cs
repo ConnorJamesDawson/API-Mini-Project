@@ -34,4 +34,6 @@ public partial class Order
     public string? ShipCountry { get; set; }
 
     public virtual Customer? Customer { get; set; }
+
+    public virtual ICollection<OrderDetail> OrderDetails { get; } = new List<OrderDetail>();
 }

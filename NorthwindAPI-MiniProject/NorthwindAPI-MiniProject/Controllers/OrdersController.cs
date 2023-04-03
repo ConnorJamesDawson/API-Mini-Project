@@ -13,37 +13,35 @@ namespace NorthwindAPI_MiniProject.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly NorthwindContext _context;
+        private readonly INorthwindService<Order> _OrderService;
 
-        public OrdersController(NorthwindContext context)
+        public OrdersController(INorthwindService<Order> orderService)
         {
-            _context = context;
+            _OrderService = orderService;
         }
 
         // GET: api/Orders
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-          if (_context.Orders == null)
-          {
-              return NotFound();
-          }
-            return await _context.Orders.ToListAsync();
+            var orders = await _OrderService.GetAllAsync();
+              if (orders == null)
+              {
+                  return NotFound("Cannot find orders table in the database");
+              }
+            return orders
+                   .ToList();
         }
 
         // GET: api/Orders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
-          if (_context.Orders == null)
-          {
-              return NotFound();
-          }
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _OrderService.GetAsync(id);
 
             if (order == null)
             {
-                return NotFound();
+                return NotFound("Id given does not match any order in the database.");
             }
 
             return order;
@@ -52,32 +50,20 @@ namespace NorthwindAPI_MiniProject.Controllers
         // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
+        public async Task<IActionResult> PutOrder(int id, 
+            [Bind("ShipAddrress", "ShipRegion", "ShipCity","ShipPostalCode", "ShipCountry")]Order order)
         {
             if (id != order.OrderId)
             {
-                return BadRequest();
+                return BadRequest("Product given does not have a matching Id to given arguments");
             }
 
-            _context.Entry(order).State = EntityState.Modified;
-
-            try
+            if (!_OrderService.UpdateAsync(id, order).Result)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest($"Cannot find Supplier with Id given to replace");
             }
 
-            return NoContent();
+            return CreatedAtAction("GetOrder", new { id = order.OrderId}, order);
         }
 
         // POST: api/Orders
@@ -85,12 +71,16 @@ namespace NorthwindAPI_MiniProject.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-          if (_context.Orders == null)
+          if (order == null)
           {
-              return Problem("Entity set 'NorthwindContext.Orders'  is null.");
+                return BadRequest($"The Order given is null and has not been created.");
           }
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+
+            if (!_OrderService.CreateAsync(order).Result)
+            {
+                return Problem("Entity set 'NorthwindContext.Products'  is null.");
+            }
+            await _OrderService.SaveAsync();
 
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
         }
@@ -99,25 +89,18 @@ namespace NorthwindAPI_MiniProject.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            if (_context.Orders == null)
-            {
-                return NotFound();
-            }
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
-            {
-                return NotFound();
-            }
+            if (!OrderExists(id)) return NotFound();
 
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
+            var deletedSuccessfully = await _OrderService.DeleteAsync(id);
+
+            if (!deletedSuccessfully) return NotFound();
 
             return NoContent();
         }
 
         private bool OrderExists(int id)
         {
-            return (_context.Orders?.Any(e => e.OrderId == id)).GetValueOrDefault();
+            return _OrderService.GetAsync(id).Result != null;
         }
     }
 }
