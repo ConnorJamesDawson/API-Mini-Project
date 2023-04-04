@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using NorthwindAPI_MiniProject.Data.Repository;
 
 namespace NorthwindAPI_MiniProject
@@ -75,14 +76,16 @@ namespace NorthwindAPI_MiniProject
                 .ToList();
         }
 
-        public async Task<T?> GetAsync(int id)
+        public async Task<T?> GetAsync(int id, int idTwo = -1)
         {
             if (_repository.IsNull)
             {
                 return null;
             }
 
-            var entity = await _repository.FindAsync(id);
+            T entity;
+            if (idTwo != -1) entity = await _repository.FindAsync(id, idTwo);
+            else entity = await _repository.FindAsync(id);
 
 
             if (entity == null)
@@ -97,14 +100,17 @@ namespace NorthwindAPI_MiniProject
         }
 
 
+
+
+
         public Task SaveAsync()
         {
             return _repository.SaveAsync();
         }
 
-        public async Task<bool> UpdateAsync(int id, T entity)
+        public async Task<bool> UpdateAsync(int id, T entity, int productId = -1)
         {
-            if (!EntityExists(id))
+            if (!await EntityExists(id, productId))
             {
                 return false;
             }
@@ -117,7 +123,7 @@ namespace NorthwindAPI_MiniProject
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EntityExists(id))
+                if (!await EntityExists(id, productId))
                 {
                     return false;
                 }
@@ -129,9 +135,15 @@ namespace NorthwindAPI_MiniProject
             return true;
         }
 
-        private bool EntityExists(int id)
+        private async Task<bool> EntityExists(int id, int idTwo)
         {
-            return _repository.FindAsync(id).Result != null;
+            if(idTwo != -1)
+            {
+                return (await _repository.FindAsync(id, idTwo)) != null;
+
+            }
+
+            return (await _repository.FindAsync(id)) != null;
         }
     }
 }

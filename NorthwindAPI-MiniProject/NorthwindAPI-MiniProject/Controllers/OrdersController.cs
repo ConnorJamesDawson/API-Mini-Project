@@ -56,8 +56,17 @@ namespace NorthwindAPI_MiniProject.Controllers
             {
                 return NotFound("Id given does not match any order in the database.");
             }
+            OrderDetailsDTO orderDetailsDTO;
+            try
+            {
+                 orderDetailsDTO = Utils.OrderDetailToDTO(order.OrderDetails.ElementAt(odId));
+            }
+            catch(ArgumentOutOfRangeException e)
+            {
+                return Problem(e.Message);
+            }
 
-            return Utils.OrderDetailToDTO(order.OrderDetails.ElementAt(odId));
+            return orderDetailsDTO;
         }
 
         // PUT: api/Orders/5
@@ -79,6 +88,22 @@ namespace NorthwindAPI_MiniProject.Controllers
             return CreatedAtAction("GetOrdersById", new { id = order.CustomerId }, order);
         }
 
+        [HttpPut("{OrderId}/OrderDetails/{ProductId}")]
+        public async Task<IActionResult> PutOrder(int orderId, int productId,
+          [Bind("UnitPrice, Quantity")] OrderDetail orderDetail)
+        {
+            if (orderId != orderDetail.OrderId)
+            {
+                return BadRequest("Product given does not have a matching Id to given arguments");
+            }
+
+            if (!_OrderDetailService.UpdateAsync(orderId, orderDetail, productId).Result)
+            {
+                return BadRequest($"Cannot find Supplier with Id given to replace");
+            }
+
+            return NoContent();
+        }
         // POST: api/Orders/{orderId}/{orderDetialId}
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("{orderId}/OrderDetails")]
@@ -119,7 +144,7 @@ namespace NorthwindAPI_MiniProject.Controllers
 
             string key = orderId.ToString() + orderDetailId.ToString();
 
-            var orderdetail = await _OrderDetailService.GetAsync();
+            var orderdetail = await _OrderDetailService.GetAsync(orderId, orderDetailId);
 
             order.OrderDetails.Remove(orderdetail!);
 

@@ -8,11 +8,22 @@ namespace NorthwindAPI_MiniProject.Data.Repository
         public OrderDetailsRepository(NorthwindContext context) : base(context)
         {
         }
-        public override async Task<OrderDetail?> FindAsync(int id)
+        public override async Task<OrderDetail?> FindAsync(int id, int idTwo = -1)
         {
-            return await _dbSet
-                .Where(s => s.ProductId == id)
-                .FirstOrDefaultAsync();
+            if (idTwo == -1)
+            {
+                return await _dbSet
+                    .Where(s => s.ProductId == id)
+                    .FirstOrDefaultAsync();
+            }
+
+            var orderDetails =  _dbSet.AsNoTracking()
+            .Where(od => od.OrderId == id);
+            var result = await orderDetails.Where(o => o.ProductId == idTwo).FirstOrDefaultAsync();
+
+
+            return result;
+
         }
         public override async Task<IEnumerable<OrderDetail>> GetAllAsync()
         {
