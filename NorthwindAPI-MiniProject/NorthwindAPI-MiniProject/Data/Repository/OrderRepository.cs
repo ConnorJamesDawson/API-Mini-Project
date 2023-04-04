@@ -22,6 +22,14 @@ namespace NorthwindAPI_MiniProject.Data.Repository
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Order>> GetAllAsync(string customerId)
+        {
+            return await _dbSet
+                .Include(s => s.OrderDetails)
+                .Where(o => o.CustomerId == customerId)
+                .ToListAsync();
+        }
+
         public override void Remove(Order entity)
         {
 

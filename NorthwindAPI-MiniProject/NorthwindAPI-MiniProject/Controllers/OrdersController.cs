@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NorthwindAPI_MiniProject.Models;
 using NorthwindAPI_MiniProject.Models.DTO;
+using NorthwindAPI_MiniProject.Services;
 
 namespace NorthwindAPI_MiniProject.Controllers
 {
@@ -14,9 +15,9 @@ namespace NorthwindAPI_MiniProject.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly INorthwindService<Order> _OrderService;
+        private readonly IOrderService<Order> _OrderService;
 
-        public OrdersController(INorthwindService<Order> orderService)
+        public OrdersController(IOrderService<Order> orderService)
         {
             _OrderService = orderService;
         }
@@ -26,6 +27,19 @@ namespace NorthwindAPI_MiniProject.Controllers
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders()
         {
             var orders = await _OrderService.GetAllAsync();
+            if (orders == null)
+            {
+                return NotFound("Cannot find orders table in the database");
+            }
+            return orders
+                   .Select(o => Utils.OrderToDTO(o))
+                   .ToList();
+        }
+        // GET: api/Orders/vinet
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersById(string id)
+        {
+            var orders = await _OrderService.GetAllAsyncByCustomerId(id);
             if (orders == null)
             {
                 return NotFound("Cannot find orders table in the database");
@@ -50,7 +64,7 @@ namespace NorthwindAPI_MiniProject.Controllers
                 .ToList();
         }
 
-        // GET: api/Orders/5
+/*        // GET: api/Orders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderDTO>> GetOrder(int id)
         {
@@ -62,7 +76,7 @@ namespace NorthwindAPI_MiniProject.Controllers
             }
 
             return Utils.OrderToDTO(order);
-        }
+        }*/
 
         [HttpGet("{orderId}/OrderDetails/{odId}")]
         public async Task<ActionResult<OrderDetailsDTO>> GetSpecficOrderDetails(int orderId, int odId)
@@ -75,7 +89,19 @@ namespace NorthwindAPI_MiniProject.Controllers
             }
 
             return Utils.OrderDetailToDTO(order.OrderDetails.ElementAt(odId));
+        }
 
+        // GET: api/Orders/vinet/1035
+        [HttpGet("{customerId}/{orderId}")]
+        public async Task<ActionResult<OrderDTO>> GetOrdersByCustomerIdThenByOrderId(string customerId, int orderId)
+        {
+            var orders = await _OrderService.GetAsyncByCustomerIdAndOrderId(customerId, orderId);
+
+            if (orders == null)
+            {
+                return NotFound("Cannot find orders table in the database");
+            }
+            return Utils.OrderToDTO(orders);
         }
 
         // PUT: api/Orders/5
