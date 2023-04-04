@@ -9,9 +9,9 @@ namespace NorthwindAPI_MiniProject.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly IOrderService<Order> _OrderService;
+        private readonly INorthwindService<Order> _OrderService;
 
-        public OrdersController(IOrderService<Order> orderService)
+        public OrdersController(INorthwindService<Order> orderService)
         {
             _OrderService = orderService;
         }
@@ -21,19 +21,6 @@ namespace NorthwindAPI_MiniProject.Controllers
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders()
         {
             var orders = await _OrderService.GetAllAsync();
-            if (orders == null)
-            {
-                return NotFound("Cannot find orders table in the database");
-            }
-            return orders
-                   .Select(o => Utils.OrderToDTO(o))
-                   .ToList();
-        }
-        // GET: api/Orders/vinet
-        [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersById(string id)
-        {
-            var orders = await _OrderService.GetAllAsyncByCustomerId(id);
             if (orders == null)
             {
                 return NotFound("Cannot find orders table in the database");
@@ -57,20 +44,6 @@ namespace NorthwindAPI_MiniProject.Controllers
                 .Select(od => Utils.OrderDetailToDTO(od))
                 .ToList();
         }
-
-        /*        // GET: api/Orders/5
-                [HttpGet("{id}")]
-                public async Task<ActionResult<OrderDTO>> GetOrder(int id)
-                {
-                    var order = await _OrderService.GetAsync(id);
-
-                    if (order == null)
-                    {
-                        return NotFound("Id given does not match any order in the database.");
-                    }
-
-                    return Utils.OrderToDTO(order);
-                }*/
 
         [HttpGet("{orderId}/OrderDetails/{odId}")]
         public async Task<ActionResult<OrderDetailsDTO>> GetSpecficOrderDetails(int orderId, int odId)
@@ -106,13 +79,17 @@ namespace NorthwindAPI_MiniProject.Controllers
 
         // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<OrderDTO>> PostOrder(Order order)
+        [HttpPost("{orderId}/{orderDetail}")]
+        public async Task<ActionResult<OrderDetailsDTO>> PostOrderDetailThroughOrderId(int orderId, OrderDetail orderDetail)
         {
+            var order = await _OrderService.GetAsync(orderId);
+
             if (order == null)
             {
                 return BadRequest($"The Order given is null and has not been created.");
             }
+
+            order.OrderDetails.Add(orderDetail);
 
             if (!_OrderService.CreateAsync(order).Result)
             {
