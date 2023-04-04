@@ -8,5 +8,6 @@
         Task<IEnumerable<Customer>?> GetAllAsync();
         Task<Customer?> GetAsync(string id);
         Task SaveAsync();
+        string CustomerIdGenerator(Customer customer);
     }
 }
