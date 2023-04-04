@@ -5,84 +5,84 @@ namespace NorthwindAPI_MiniProject
 {
     public class NorthwindService<T> : INorthwindService<T> where T : class
     {
-        private readonly ILogger _logger;
-        private readonly INorthwindRepository<T> _respository;
+        protected readonly ILogger _logger;
+        protected readonly INorthwindRepository<T> _repository;
 
         public NorthwindService(ILogger<INorthwindService<T>> logger, INorthwindRepository<T> respository)
         {
             _logger = logger;
-            _respository = respository;
+            _repository = respository;
         }
 
         public async Task<bool> CreateAsync(T entity)
         {            
-            if (_respository.IsNull || entity == null)
+            if (_repository.IsNull || entity == null)
             {
                 return false;
             }
             else
             {
-                _respository.Add(entity);
+                _repository.Add(entity);
                 return true;
             }
         }
 
         public async Task<bool> CreateAsync(T entity, int id)
         {
-            if (_respository.IsNull || entity == null)
+            if (_repository.IsNull || entity == null)
             {
                 return false;
             }
-            else if (await _respository.FindAsync(id) != null)
+            else if (await _repository.FindAsync(id) != null)
             {
                 return false;
             }
             else
             {
-                _respository.Add(entity);
+                _repository.Add(entity);
                 return true;
             }
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            if (_respository.IsNull)
+            if (_repository.IsNull)
             {
                 return false;
             }
 
-            var supplier = await _respository.FindAsync(id);
+            var supplier = await _repository.FindAsync(id);
 
             if (supplier == null)
             {
                 return false;
             }
 
-            _respository.Remove(supplier);
+            _repository.Remove(supplier);
 
-            await _respository.SaveAsync();
+            await _repository.SaveAsync();
 
             return true;
         }
 
         public async Task<IEnumerable<T>?> GetAllAsync()
         {
-            if (_respository.IsNull)
+            if (_repository.IsNull)
             {
                 return null;
             }
-            return (await _respository.GetAllAsync())
+            return (await _repository.GetAllAsync())
                 .ToList();
         }
 
         public async Task<T?> GetAsync(int id)
         {
-            if (_respository.IsNull)
+            if (_repository.IsNull)
             {
                 return null;
             }
 
-            var entity = await _respository.FindAsync(id);
+            var entity = await _repository.FindAsync(id);
 
 
             if (entity == null)
@@ -99,7 +99,7 @@ namespace NorthwindAPI_MiniProject
 
         public Task SaveAsync()
         {
-            return _respository.SaveAsync();
+            return _repository.SaveAsync();
         }
 
         public async Task<bool> UpdateAsync(int id, T entity)
@@ -109,11 +109,11 @@ namespace NorthwindAPI_MiniProject
                 return false;
             }
 
-            _respository.Update(entity);
+            _repository.Update(entity);
 
             try
             {
-                await _respository.SaveAsync();
+                await _repository.SaveAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -131,7 +131,7 @@ namespace NorthwindAPI_MiniProject
 
         private bool EntityExists(int id)
         {
-            return _respository.FindAsync(id).Result != null;
+            return _repository.FindAsync(id).Result != null;
         }
     }
 }
