@@ -12,7 +12,19 @@ namespace NorthwindAPI_MiniProject.Data.Repository
 
         public async Task<Customer?> FindAsync(string id)
         {
-            return await _dbSet.FindAsync(id);
+            return await _dbSet
+                .Where(s => s.CustomerId == id)
+                .Include(s => s.Orders)
+                .ThenInclude(o => o.OrderDetails)
+                .FirstOrDefaultAsync();
+        }
+
+        public override async Task<IEnumerable<Customer>> GetAllAsync()
+        {
+            return await _dbSet
+                .Include(s => s.Orders)
+                .ThenInclude(o => o.OrderDetails)
+                .ToListAsync();
         }
     }
 }

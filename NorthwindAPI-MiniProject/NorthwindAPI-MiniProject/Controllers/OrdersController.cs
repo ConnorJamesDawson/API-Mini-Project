@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using NorthwindAPI_MiniProject.Models;
 using NorthwindAPI_MiniProject.Models.DTO;
 using NorthwindAPI_MiniProject.Services;
@@ -64,19 +58,19 @@ namespace NorthwindAPI_MiniProject.Controllers
                 .ToList();
         }
 
-/*        // GET: api/Orders/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDTO>> GetOrder(int id)
-        {
-            var order = await _OrderService.GetAsync(id);
+        /*        // GET: api/Orders/5
+                [HttpGet("{id}")]
+                public async Task<ActionResult<OrderDTO>> GetOrder(int id)
+                {
+                    var order = await _OrderService.GetAsync(id);
 
-            if (order == null)
-            {
-                return NotFound("Id given does not match any order in the database.");
-            }
+                    if (order == null)
+                    {
+                        return NotFound("Id given does not match any order in the database.");
+                    }
 
-            return Utils.OrderToDTO(order);
-        }*/
+                    return Utils.OrderToDTO(order);
+                }*/
 
         [HttpGet("{orderId}/OrderDetails/{odId}")]
         public async Task<ActionResult<OrderDetailsDTO>> GetSpecficOrderDetails(int orderId, int odId)
@@ -91,24 +85,11 @@ namespace NorthwindAPI_MiniProject.Controllers
             return Utils.OrderDetailToDTO(order.OrderDetails.ElementAt(odId));
         }
 
-        // GET: api/Orders/vinet/1035
-        [HttpGet("{customerId}/{orderId}")]
-        public async Task<ActionResult<OrderDTO>> GetOrdersByCustomerIdThenByOrderId(string customerId, int orderId)
-        {
-            var orders = await _OrderService.GetAsyncByCustomerIdAndOrderId(customerId, orderId);
-
-            if (orders == null)
-            {
-                return NotFound("Cannot find orders table in the database");
-            }
-            return Utils.OrderToDTO(orders);
-        }
-
         // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, 
-            [Bind("ShipAddrress", "ShipRegion", "ShipCity","ShipPostalCode", "ShipCountry")]Order order)
+        public async Task<IActionResult> PutOrder(int id,
+            [Bind("ShipAddrress", "ShipRegion", "ShipCity", "ShipPostalCode", "ShipCountry")] Order order)
         {
             if (id != order.OrderId)
             {
@@ -120,18 +101,18 @@ namespace NorthwindAPI_MiniProject.Controllers
                 return BadRequest($"Cannot find Supplier with Id given to replace");
             }
 
-            return CreatedAtAction("GetOrder", new { id = order.OrderId}, order);
+            return CreatedAtAction("GetOrdersById", new { id = order.CustomerId }, order);
         }
 
-        // POST: api/Orders/CustomerId
+        // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("")]
+        [HttpPost]
         public async Task<ActionResult<OrderDTO>> PostOrder(Order order)
         {
-          if (order == null)
-          {
+            if (order == null)
+            {
                 return BadRequest($"The Order given is null and has not been created.");
-          }
+            }
 
             if (!_OrderService.CreateAsync(order).Result)
             {
@@ -139,7 +120,7 @@ namespace NorthwindAPI_MiniProject.Controllers
             }
             await _OrderService.SaveAsync();
 
-            return CreatedAtAction("GetOrder", new { id = order.OrderId }, Utils.OrderToDTO(order));
+            return CreatedAtAction("GetOrdersById", new { id = order.CustomerId }, Utils.OrderToDTO(order));
         }
 
         // DELETE: api/Orders/CustomerId/OrderId

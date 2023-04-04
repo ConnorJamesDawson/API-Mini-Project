@@ -25,7 +25,9 @@ public static class Utils
         ShipCity = order.ShipCity,
         ShipRegion = order.ShipRegion,
         ShipPostalCode = order.ShipPostalCode,
-        ShipCountry = order.ShipCountry
+        ShipCountry = order.ShipCountry,
+        OrderDetails = order.OrderDetails.Select(od => Utils.OrderToDTO)
+
     };
 
     public static OrderDetailsDTO OrderDetailToDTO(OrderDetail orderDetail) => new OrderDetailsDTO

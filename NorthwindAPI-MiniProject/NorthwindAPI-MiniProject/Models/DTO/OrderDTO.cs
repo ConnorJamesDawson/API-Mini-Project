@@ -11,5 +11,7 @@
         public string? ShipRegion { get; set; }
         public string? ShipPostalCode { get; set; }
         public string? ShipCountry { get; set; }
+
+        public ICollection<OrderDetailsDTO> OrderDetails { get; set; } = new List<OrderDetailsDTO>();
     }
 }

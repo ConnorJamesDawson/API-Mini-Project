@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using NorthwindAPI_MiniProject.Models;
 using NorthwindAPI_MiniProject.Data.Repository;
 using NorthwindAPI_MiniProject.Services;
+using NorthwindAPI_MiniProject.Models.DTO;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace NorthwindAPI_MiniProject.Controllers
 {
@@ -34,7 +36,7 @@ namespace NorthwindAPI_MiniProject.Controllers
                 .ToList();
         }
 
-        // GET: api/Customers/5
+        // GET: api/Customers/VINET
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(string id)
         {
@@ -47,6 +49,41 @@ namespace NorthwindAPI_MiniProject.Controllers
             }
 
             return customer;
+        }
+
+        // GET: api/Customers/Orders/vinet
+        [HttpGet("Orders/{customerId}")]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersByCustomerId(string customerId)
+        {
+            var customer = await _customerService.GetAsync(customerId);
+
+            var orders = customer.Orders.ToList();
+
+            if (customer == null)
+            {
+                return NotFound("Cannot find orders table in the database");
+            }
+            return orders
+                .Select(c => Utils.OrderToDTO(c))
+                .ToList()!;
+        }
+
+        // GET: api/Customers/vinet/
+        [HttpGet("/Orders/{customerId}/{OrderId}")]
+        public async Task<ActionResult<OrderDTO>> GetSpecificOrderByCustomerIdThenByOrderId(string customerId, int orderId)
+        {
+            var customer = await _customerService.GetAsync(customerId);
+
+            var orders = customer.Orders.ToList();
+
+            if (customer == null)
+            {
+                return NotFound("Cannot find orders table in the database");
+            }
+            return orders
+                .Select(c => Utils.OrderToDTO(c))
+                .Where(c => c.OrderId == orderId)
+                .FirstOrDefault()!;
         }
 
         // PUT: api/Customers/5
