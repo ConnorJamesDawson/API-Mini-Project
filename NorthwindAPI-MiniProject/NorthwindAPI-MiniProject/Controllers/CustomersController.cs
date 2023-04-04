@@ -15,11 +15,11 @@ namespace NorthwindAPI_MiniProject.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly CustomerService _customerService;
+        private readonly ICustomerService<Customer> _customerService;
 
         public CustomersController(ICustomerService<Customer> customerService)
         {
-            _customerService = (CustomerService?)customerService;
+            _customerService = customerService;
         }
 
         // GET: api/Customers
@@ -79,14 +79,6 @@ namespace NorthwindAPI_MiniProject.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(string id)
         {
-            //var customer = await _customerService.GetAsync(id);
-
-            //if (customer == null)
-            //{
-            //    return NotFound();
-            //}
-
-            // Delete the supplier
             await _customerService.DeleteAsync(id);
 
             return NoContent();

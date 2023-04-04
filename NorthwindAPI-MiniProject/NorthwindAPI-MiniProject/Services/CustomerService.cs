@@ -119,15 +119,13 @@ namespace NorthwindAPI_MiniProject.Services
 
         public async Task<bool> UpdateAsync(string id, Customer entity)
         {
-            if (!EntityExists(id))
-            {
-                return false;
-            }
+
+
 
 
 
             _repository.Update(entity);
-
+            await _repository.SaveAsync();
 
 
             try
