@@ -19,7 +19,7 @@ namespace NorthwindAPI_MiniProject.Controllers
         }
 
         // GET: api/Orders
-        [HttpGet]
+        [HttpGet(Name = nameof(GetOrders))]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders()
         {
             var orders = await _OrderService.GetAllAsync();
@@ -28,8 +28,22 @@ namespace NorthwindAPI_MiniProject.Controllers
                 return NotFound("Cannot find orders table in the database");
             }
             return orders
-                   .Select(o => Utils.OrderToDTO(o))
+                   .Select(o => CreateProductLinks(Utils.OrderToDTO(o)))
                    .ToList();
+        }
+
+        // GET: api/Orders
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDTO>> GetOrder(int id)
+        {
+            var order = await _OrderService.GetAsync(id);
+
+            if (order == null)
+            {
+                return NotFound("Cannot find orders table in the database");
+            }
+
+            return CreateProductLinks(Utils.OrderToDTO(order));
         }
 
         [HttpGet("{id}/OrderDetails")]
@@ -104,6 +118,28 @@ namespace NorthwindAPI_MiniProject.Controllers
 
             return NoContent();
         }
+        //POST: api/Orders
+        [HttpPost]
+        public async Task<ActionResult<OrderDTO>> PostOrder(Order order)
+        {
+            if (order == null)
+            {
+                return BadRequest($"The Order given is null and has not been created.");
+            }
+
+
+
+            if (!_OrderService.CreateAsync(order).Result)
+            {
+                return Problem("Entity set 'NorthwindContext.Products'  is null.");
+            }
+            await _OrderService.SaveAsync();
+
+
+
+            return CreatedAtAction("GetOrder", new { id = order.OrderId }, Utils.OrderToDTO(order));
+        }
+
         // POST: api/Orders/{orderId}/{orderDetialId}
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("{orderId}/OrderDetails")]
@@ -157,6 +193,28 @@ namespace NorthwindAPI_MiniProject.Controllers
         private bool OrderExists(int id)
         {
             return _OrderService.GetAsync(id).Result != null;
+        }
+        private OrderDTO CreateProductLinks(OrderDTO order)
+        {
+            //if (Url == null) return product;
+            var idObj = new { id = order.OrderId };
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.GetOrders), idObj),
+                "self",
+                "GET"));
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.PostOrder), idObj),
+                "post_product",
+                "POST"));
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.PutOrder), idObj),
+                "delete_product",
+                "DELETE"));
+
+            return order;
         }
     }
 }

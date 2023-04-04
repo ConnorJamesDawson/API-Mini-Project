@@ -113,7 +113,7 @@ namespace NorthwindAPI_MiniProject.Controllers
                 "POST"));
 
             product.Links.Add(
-                new LinkDTO(Url.Link(nameof(this.PutProduct), idObj),
+                new LinkDTO(Url.Link(nameof(this.DeleteProduct), idObj),
                 "delete_product",
                 "DELETE"));
 
