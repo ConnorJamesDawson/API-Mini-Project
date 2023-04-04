@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using NorthwindAPI_MiniProject.Data.Repository;
 using NorthwindAPI_MiniProject.Models;
+using NorthwindAPI_MiniProject.Services;
 
 namespace NorthwindAPI_MiniProject
 {
@@ -24,17 +25,32 @@ namespace NorthwindAPI_MiniProject
 
             builder.Services.AddScoped(
                 typeof(INorthwindRepository<>),
-                typeof(NorthwindRepository<>)); 
+                typeof(NorthwindRepository<>));
+
+            builder.Services.AddScoped(
+                typeof(ICustomerRepository<Customer>),
+                typeof(CustomerRepository));
 
             builder.Services.AddScoped(
                 typeof(INorthwindService<>),
                 typeof(NorthwindService<>));
 
+            builder.Services.AddScoped(
+                typeof(ICustomerService<Customer>),
+                typeof(CustomerService));
+
+            //builder.Services.AddScoped(
+            //    typeof(INorthwindService<>),
+            //    typeof(NorthwindService<>));
+
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            //builder.Services.AddScoped<INorthwindRepository<Customer>, CustomersRepository>();
+            //builder.Services.AddScoped<INorthwindRepository<Customer>, CustomerRepository>();
+            //builder.Services.AddScoped<NorthwindRepository<Customer>, CustomerRepository>();
+            //builder.Services.AddScoped<IService<Customer>, CustomerService>();
             //builder.Services.AddScoped<INorthwindRepository<Product>, ProductsRepository>();
             //builder.Services.AddScoped<INorthwindRepository<Orders>, OrdersRepository>();
 
