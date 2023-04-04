@@ -26,7 +26,7 @@ namespace NorthwindAPI_MiniProject.Data.Repository
             _dbSet.AddRange(entities);
         }
 
-        public virtual async Task<T?> FindAsync(int id)
+        public virtual async Task<T?> FindAsync(int id, int itTwo = -1)
         {
             return await _dbSet.FindAsync(id);
         }

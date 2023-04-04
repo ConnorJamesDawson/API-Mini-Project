@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NorthwindAPI_MiniProject.Services;
 
 namespace NorthwindAPI.Tests
 {
@@ -19,7 +20,7 @@ namespace NorthwindAPI.Tests
         [Test]
         public async Task GetOrders_WhenThereAreOrders_ReturnsListOfOrderDTOs()
         {
-            var mockService = Mock.Of<INorthwindService<Order>>();
+            var mockService = Mock.Of<IOrderService<Order>>();
             List<Order> orders = new List<Order>
             {
                 new Order
@@ -43,7 +44,7 @@ namespace NorthwindAPI.Tests
         [Test]
         public async Task GetOrders_WhenThereAreNoOrders_ReturnsNull()
         {
-            var mockService = Mock.Of<INorthwindService<Order>>();
+            var mockService = Mock.Of<IOrderService<Order>>();
 
             Mock
             .Get(mockService)
@@ -61,7 +62,7 @@ namespace NorthwindAPI.Tests
         [Test]
         public async Task GetOrder_WhenGivenValidId_ReturnsAProductDTO()
         {
-            var mockService = Mock.Of<INorthwindService<Order>>();
+            var mockService = Mock.Of<IOrderService<Order>>();
             List<Order> orders = new List<Order>
             {
                 new Order
@@ -85,7 +86,7 @@ namespace NorthwindAPI.Tests
         [Test]
         public async Task GetOrder_WhenGivenInvalidId_ReturnsNotFoundResult()
         {
-            var mockService = Mock.Of<INorthwindService<Order>>();
+            var mockService = Mock.Of<IOrderService<Order>>();
 
             Mock
             .Get(mockService)
@@ -102,7 +103,7 @@ namespace NorthwindAPI.Tests
         [Test]
         public async Task DeleteOrder_WhenGivenValidId_HitsDeleteAsyncOnceAndReturnsNoContent()
         {
-            var mockService = new Mock<INorthwindService<Order>>(behavior: MockBehavior.Strict);
+            var mockService = new Mock<IOrderService<Order>>(behavior: MockBehavior.Strict);
             Order order = new Order { OrderId = 1 };
 
             mockService
@@ -125,7 +126,7 @@ namespace NorthwindAPI.Tests
         [Test]
         public async Task PutOrder_WhenGivenCorrectDetails_ReturnsUpdatedOrder()
         {
-            var mockService = Mock.Of<INorthwindService<Order>>();
+            var mockService = Mock.Of<IOrderService<Order>>();
 
             Order order = new Order
             {
@@ -152,7 +153,7 @@ namespace NorthwindAPI.Tests
         [Test]
         public async Task PostOrder_WhenGivenCorrectDetails_AddSupplier()
         {
-            var mockService = Mock.Of<INorthwindService<Order>>();
+            var mockService = Mock.Of<IOrderService<Order>>();
 
             Order order = new Order
             {

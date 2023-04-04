@@ -33,7 +33,7 @@ namespace NorthwindAPI_MiniProject
             {
                 return false;
             }
-            else if (await _repository.FindAsync(id) != null)
+            else if (await _repository.FindAsync(id, -1) != null)
             {
                 return false;
             }
@@ -51,7 +51,7 @@ namespace NorthwindAPI_MiniProject
                 return false;
             }
 
-            var supplier = await _repository.FindAsync(id);
+            var supplier = await _repository.FindAsync(id, -1);
 
             if (supplier == null)
             {
@@ -82,7 +82,7 @@ namespace NorthwindAPI_MiniProject
                 return null;
             }
 
-            var entity = await _repository.FindAsync(id);
+            var entity = await _repository.FindAsync(id, -1);
 
 
             if (entity == null)
@@ -131,7 +131,7 @@ namespace NorthwindAPI_MiniProject
 
         private bool EntityExists(int id)
         {
-            return _repository.FindAsync(id).Result != null;
+            return _repository.FindAsync(id, -1).Result != null;
         }
     }
 }
