@@ -28,6 +28,10 @@ namespace NorthwindAPI_MiniProject
                 typeof(NorthwindRepository<>));
 
             builder.Services.AddScoped(
+                typeof(INorthwindRepository<OrderDetail>),
+                typeof(OrderDetailsRepository));
+
+            builder.Services.AddScoped(
                 typeof(ICustomerRepository<Customer>),
                 typeof(CustomerRepository));
 
@@ -38,11 +42,6 @@ namespace NorthwindAPI_MiniProject
             builder.Services.AddScoped(
                 typeof(ICustomerService<Customer>),
                 typeof(CustomerService));
-
-            builder.Services.AddScoped(
-            typeof(IOrderService<Order>),
-            typeof(OrderService));
-
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

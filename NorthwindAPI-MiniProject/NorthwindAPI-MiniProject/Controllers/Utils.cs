@@ -1,5 +1,6 @@
 ﻿using NorthwindAPI_MiniProject.Models;
 using NorthwindAPI_MiniProject.Models.DTO;
+using System.Net;
 
 namespace NorthwindAPI_MiniProject.Controllers;
 
@@ -15,6 +16,7 @@ public static class Utils
         QuantityPerUnit = product.QuantityPerUnit
     };
 
+    /*
     public static OrderDTO OrderToDTO(Order order) => new OrderDTO
     {
         OrderId = order.OrderId,
@@ -25,8 +27,31 @@ public static class Utils
         ShipCity = order.ShipCity,
         ShipRegion = order.ShipRegion,
         ShipPostalCode = order.ShipPostalCode,
-        ShipCountry = order.ShipCountry
-    };
+        ShipCountry = order.ShipCountry,
+        OrderDetails = order.OrderDetails.Select(od => Utils.OrderToDTO)
+
+    };*/
+
+    public static OrderDTO OrderToDTO(Order order)
+    {
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.OrderId = order.OrderId;
+        orderDTO.CustomerId = order.CustomerId;
+        orderDTO.OrderDate = order.OrderDate;
+        orderDTO.ShippedDate = order.ShippedDate;
+        orderDTO.ShipAddress = order.ShipAddress;
+        orderDTO.ShipCity = order.ShipCity;
+        orderDTO.ShipRegion = order.ShipRegion;
+        orderDTO.ShipPostalCode = order.ShipPostalCode;
+        orderDTO.ShipCountry = order.ShipCountry;
+
+        foreach(var orderDetails in order.OrderDetails)
+        {
+            orderDTO.OrderDetails.Add(OrderDetailToDTO(orderDetails));
+        }
+
+        return orderDTO;
+    }
 
     public static OrderDetailsDTO OrderDetailToDTO(OrderDetail orderDetail) => new OrderDetailsDTO
     {
