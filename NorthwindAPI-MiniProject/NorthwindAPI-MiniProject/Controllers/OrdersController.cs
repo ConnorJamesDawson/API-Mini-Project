@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NorthwindAPI_MiniProject.Models;
+using NorthwindAPI_MiniProject.Models.DTO;
 
 namespace NorthwindAPI_MiniProject.Controllers
 {
@@ -22,20 +23,20 @@ namespace NorthwindAPI_MiniProject.Controllers
 
         // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders()
         {
             var orders = await _OrderService.GetAllAsync();
-              if (orders == null)
-              {
-                  return NotFound("Cannot find orders table in the database");
-              }
+            if (orders == null)
+            {
+                return NotFound("Cannot find orders table in the database");
+            }
             return orders
+                   .Select(o => Utils.OrderToDTO(o))
                    .ToList();
         }
 
-        // GET: api/Orders/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
+        [HttpGet("{id}/OrderDetails")]
+        public async Task<ActionResult<IEnumerable<OrderDetailsDTO>>> GetOrderDetails(int id)
         {
             var order = await _OrderService.GetAsync(id);
 
@@ -44,7 +45,37 @@ namespace NorthwindAPI_MiniProject.Controllers
                 return NotFound("Id given does not match any order in the database.");
             }
 
-            return order;
+            return order.OrderDetails
+                .Select(od => Utils.OrderDetailToDTO(od))
+                .ToList();
+        }
+
+        // GET: api/Orders/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDTO>> GetOrder(int id)
+        {
+            var order = await _OrderService.GetAsync(id);
+
+            if (order == null)
+            {
+                return NotFound("Id given does not match any order in the database.");
+            }
+
+            return Utils.OrderToDTO(order);
+        }
+
+        [HttpGet("{orderId}/OrderDetails/{odId}")]
+        public async Task<ActionResult<OrderDetailsDTO>> GetSpecficOrderDetails(int orderId, int odId)
+        {
+            var order = await _OrderService.GetAsync(orderId);
+
+            if (order == null)
+            {
+                return NotFound("Id given does not match any order in the database.");
+            }
+
+            return Utils.OrderDetailToDTO(order.OrderDetails.ElementAt(odId));
+
         }
 
         // PUT: api/Orders/5
@@ -69,7 +100,7 @@ namespace NorthwindAPI_MiniProject.Controllers
         // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<OrderDTO>> PostOrder(Order order)
         {
           if (order == null)
           {
@@ -82,7 +113,7 @@ namespace NorthwindAPI_MiniProject.Controllers
             }
             await _OrderService.SaveAsync();
 
-            return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
+            return CreatedAtAction("GetOrder", new { id = order.OrderId }, Utils.OrderToDTO(order));
         }
 
         // DELETE: api/Orders/5
