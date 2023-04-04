@@ -23,6 +23,7 @@ namespace NorthwindAPI_MiniProject
             else
             {
                 _respository.Add(entity);
+                await _respository.SaveAsync();
                 return true;
             }
         }

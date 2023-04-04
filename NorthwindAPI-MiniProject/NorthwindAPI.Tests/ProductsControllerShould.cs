@@ -9,6 +9,7 @@ using NorthwindAPI_MiniProject.Data.Repository;
 using NorthwindAPI_MiniProject.Models;
 using NorthwindAPI_MiniProject.Models.DTO;
 using System.Security.Cryptography;
+using System.Security.Policy;
 
 namespace NorthwindAPI.Tests;
 
@@ -29,19 +30,16 @@ internal class ProductsControllerShould
                 UnitsInStock = 5
             }
         };
-
-
-
+        
         Mock
         .Get(mockService)
         .Setup(sc => sc.GetAllAsync().Result)
         .Returns(products);
 
-
-
-
-
         var sut = new ProductsController(mockService);
+
+    
+
         var result = await sut.GetProducts();
         Assert.That(result.Value, Is.InstanceOf<IEnumerable<ProductDTO>>());
     }
@@ -290,14 +288,12 @@ internal class ProductsControllerShould
 
         Mock
         .Get(mockService)
-        .Setup(sc => sc.GetAllAsync().Result)
-        .Returns(suppliers);
+        .Setup(sc => sc.CreateAsync(prod).Result)
+        .Returns(false);
 
         var sut = new ProductsController(mockService);
-        await sut.PostProduct(prod);
-        var result = await sut.GetProducts();
+        var result = await sut.PostProduct(prod);
 
-        Assert.That(result.Value, Is.InstanceOf<ProblemHttpResult>());
+        Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
     }
-
 }
