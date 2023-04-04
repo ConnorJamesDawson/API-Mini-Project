@@ -74,9 +74,8 @@ namespace NorthwindAPI_MiniProject.Controllers
                 return NotFound("Id given does not match any order in the database.");
             }
 
-            return Utils.OrderDetailToDTO(order.OrderDetails
-                .Where(od => od.OrderId == odId)
-                .FirstOrDefault()!);
+            return Utils.OrderDetailToDTO(order.OrderDetails.ElementAt(odId));
+
         }
 
         // PUT: api/Orders/5
