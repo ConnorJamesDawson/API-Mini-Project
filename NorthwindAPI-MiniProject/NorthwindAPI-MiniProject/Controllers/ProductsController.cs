@@ -69,10 +69,11 @@ namespace NorthwindAPI_MiniProject.Controllers
         public async Task<ActionResult<ProductDTO>> PostProduct(
             [Bind("ProductId, ProductName, UnitPrice, UnitsInStock, SupplierId")] Product product)
         {
+
             var createdSuccessfully = await _service.CreateAsync(product);
             if (!createdSuccessfully)
             {
-                return Problem("Entity set 'NorthwindContext.Products'  is null.");
+                return Problem($"Entity set 'NorthwindContext.Products'  is null or entity with id: {product.ProductId} already exists");
             }
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, Utils.ProductToDTO(product));
         }

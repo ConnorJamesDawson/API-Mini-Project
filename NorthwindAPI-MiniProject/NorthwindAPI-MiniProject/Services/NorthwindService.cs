@@ -15,8 +15,25 @@ namespace NorthwindAPI_MiniProject
         }
 
         public async Task<bool> CreateAsync(T entity)
+        {            
+            if (_respository.IsNull || entity == null)
+            {
+                return false;
+            }
+            else
+            {
+                _respository.Add(entity);
+                return true;
+            }
+        }
+
+        public async Task<bool> CreateAsync(T entity, int id)
         {
             if (_respository.IsNull || entity == null)
+            {
+                return false;
+            }
+            else if (await _respository.FindAsync(id) != null)
             {
                 return false;
             }
