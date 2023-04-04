@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NorthwindAPI_MiniProject.Data.Repository;
 using NorthwindAPI_MiniProject.Models;
+using System.Text.RegularExpressions;
+
 namespace NorthwindAPI_MiniProject.Services
 {
     public class CustomerService : ICustomerService<Customer>
@@ -26,6 +28,10 @@ namespace NorthwindAPI_MiniProject.Services
             }
             else
             {
+                string id = CustomerIdGenerator(entity);
+
+                entity.CustomerId = id;
+
                 _repository.Add(entity);
                 _repository.SaveAsync();
                 return true;
@@ -119,15 +125,13 @@ namespace NorthwindAPI_MiniProject.Services
 
         public async Task<bool> UpdateAsync(string id, Customer entity)
         {
-            if (!EntityExists(id))
-            {
-                return false;
-            }
+
+
 
 
 
             _repository.Update(entity);
-
+            await _repository.SaveAsync();
 
 
             try
@@ -153,6 +157,37 @@ namespace NorthwindAPI_MiniProject.Services
         private bool EntityExists(string id)
         {
             return _repository.FindAsync(id).Result != null;
+        }
+
+
+        public string CustomerIdGenerator(Customer customer)
+        {
+            Random rand = new Random();
+            var customers = GetAllAsync().Result;
+            var existingIds = new List<string>();
+            var companyNameLength = customer.CompanyName.Length;
+            string generatedId;
+
+            foreach (var cust in customers)
+            {
+                existingIds.Add(cust.CustomerId);
+            }
+
+            if(companyNameLength < 5)
+            {
+                generatedId = customer.CompanyName.Replace(" ", "") + customer.ContactName.Replace(" ", "").Substring(0, 5 - companyNameLength).ToUpper();
+            }
+            else
+            {
+                generatedId = customer.CompanyName.Replace(" ", "").Substring(0, 5).ToUpper();
+            }
+
+            while (existingIds.Contains(generatedId))
+            {
+                generatedId = customer.CompanyName.Substring(0, rand.Next(3, 5)).ToUpper() + customer.ContactName.Substring(0, rand.Next(1,3)).ToUpper();
+            }
+
+            return generatedId;
         }
     }
 }

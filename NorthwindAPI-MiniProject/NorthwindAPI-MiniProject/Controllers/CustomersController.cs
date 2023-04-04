@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using NorthwindAPI_MiniProject.Models;
 using NorthwindAPI_MiniProject.Data.Repository;
 using NorthwindAPI_MiniProject.Services;
-using NorthwindAPI_MiniProject.Models.DTO;
-using static NuGet.Packaging.PackagingConstants;
 
 namespace NorthwindAPI_MiniProject.Controllers
 {
@@ -17,11 +15,11 @@ namespace NorthwindAPI_MiniProject.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly CustomerService _customerService;
+        private readonly ICustomerService<Customer> _customerService;
 
         public CustomersController(ICustomerService<Customer> customerService)
         {
-            _customerService = (CustomerService?)customerService;
+            _customerService = customerService;
         }
 
         // GET: api/Customers
@@ -36,7 +34,7 @@ namespace NorthwindAPI_MiniProject.Controllers
                 .ToList();
         }
 
-        // GET: api/Customers/VINET
+        // GET: api/Customers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(string id)
         {
@@ -49,41 +47,6 @@ namespace NorthwindAPI_MiniProject.Controllers
             }
 
             return customer;
-        }
-
-        // GET: api/Customers/Orders/vinet
-        [HttpGet("Orders/{customerId}")]
-        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersByCustomerId(string customerId)
-        {
-            var customer = await _customerService.GetAsync(customerId);
-
-            var orders = customer.Orders.ToList();
-
-            if (customer == null)
-            {
-                return NotFound("Cannot find orders table in the database");
-            }
-            return orders
-                .Select(c => Utils.OrderToDTO(c))
-                .ToList()!;
-        }
-
-        // GET: api/Customers/vinet/
-        [HttpGet("/Orders/{customerId}/{OrderId}")]
-        public async Task<ActionResult<OrderDTO>> GetSpecificOrderByCustomerIdThenByOrderId(string customerId, int orderId)
-        {
-            var customer = await _customerService.GetAsync(customerId);
-
-            var orders = customer.Orders.ToList();
-
-            if (customer == null)
-            {
-                return NotFound("Cannot find orders table in the database");
-            }
-            return orders
-                .Select(c => Utils.OrderToDTO(c))
-                .Where(c => c.OrderId == orderId)
-                .FirstOrDefault()!;
         }
 
         // PUT: api/Customers/5
@@ -107,6 +70,10 @@ namespace NorthwindAPI_MiniProject.Controllers
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
+            string id = _customerService.CustomerIdGenerator(customer);
+
+            customer.CustomerId = id;
+
             await _customerService.CreateAsync(customer);
 
             return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
@@ -116,14 +83,6 @@ namespace NorthwindAPI_MiniProject.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(string id)
         {
-            //var customer = await _customerService.GetAsync(id);
-
-            //if (customer == null)
-            //{
-            //    return NotFound();
-            //}
-
-            // Delete the supplier
             await _customerService.DeleteAsync(id);
 
             return NoContent();

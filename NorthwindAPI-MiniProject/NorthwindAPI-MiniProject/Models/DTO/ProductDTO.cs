@@ -9,6 +9,4 @@ public class ProductDTO
     public decimal? UnitPrice { get; set; }
     public string? QuantityPerUnit { get; set; }
 
-    public List<LinkDTO>? Links { get; set; } = new List<LinkDTO>();
-
 }

@@ -8,9 +8,8 @@ namespace NorthwindAPI_MiniProject.Data.Repository
         public OrderRepository(NorthwindContext context) : base(context)
         {
         }
-        public override async Task<Order?> FindAsync(int id, int idTwo = -1)
+        public override async Task<Order?> FindAsync(int id)
         {
-           
             return await _dbSet
                 .Where(s => s.OrderId == id)
                 .Include(s => s.OrderDetails)
