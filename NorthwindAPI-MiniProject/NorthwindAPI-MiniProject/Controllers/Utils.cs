@@ -27,4 +27,12 @@ public static class Utils
         ShipPostalCode = order.ShipPostalCode,
         ShipCountry = order.ShipCountry
     };
+
+    public static OrderDetailsDTO OrderDetailToDTO(OrderDetail orderDetail) => new OrderDetailsDTO
+    {
+        OrderId = orderDetail.OrderId,
+        ProductId = orderDetail.ProductId,
+        UnitPrice = orderDetail.UnitPrice,
+        Quantity = orderDetail.Quantity
+    };
 }
