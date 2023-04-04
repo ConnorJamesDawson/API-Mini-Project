@@ -80,7 +80,7 @@ internal class ProductsControllerShould
 
         Mock
         .Get(mockService)
-        .Setup(sc => sc.GetAsync(1).Result)
+        .Setup(sc => sc.GetAsync(1, -1).Result)
         .Returns(products[0]);
 
         var sut = new ProductsController(mockService);
@@ -97,7 +97,7 @@ internal class ProductsControllerShould
        
         Mock
         .Get(mockService)
-        .Setup(sc => sc.GetAsync(1).Result)
+        .Setup(sc => sc.GetAsync(1, -1).Result)
         .Returns<Task>(null);
 
         var sut = new ProductsController(mockService);
@@ -169,7 +169,7 @@ internal class ProductsControllerShould
 
         Mock
         .Get(mockService)
-        .Setup(sc => sc.GetAsync(0).Result)
+        .Setup(sc => sc.GetAsync(0, -1).Result)
         .Returns(prod);
 
         var sut = new ProductsController(mockService);
@@ -194,7 +194,7 @@ internal class ProductsControllerShould
         };
 
         Mock.Get(mockService)
-            .Setup(sc => sc.UpdateAsync(1, prod).Result)
+            .Setup(sc => sc.UpdateAsync(1, prod, -1).Result)
             .Returns(false);
 
         var sut = new ProductsController(mockService);
