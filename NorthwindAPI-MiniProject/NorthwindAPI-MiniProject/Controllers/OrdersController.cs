@@ -123,9 +123,9 @@ namespace NorthwindAPI_MiniProject.Controllers
             return CreatedAtAction("GetOrder", new { id = order.OrderId}, order);
         }
 
-        // POST: api/Orders
+        // POST: api/Orders/CustomerId
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("")]
         public async Task<ActionResult<OrderDTO>> PostOrder(Order order)
         {
           if (order == null)
@@ -142,13 +142,13 @@ namespace NorthwindAPI_MiniProject.Controllers
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, Utils.OrderToDTO(order));
         }
 
-        // DELETE: api/Orders/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
+        // DELETE: api/Orders/CustomerId/OrderId
+        [HttpDelete("{customerId}/{orderId}")]
+        public async Task<IActionResult> DeleteOrder(int orderId)
         {
-            if (!OrderExists(id)) return NotFound();
+            if (!OrderExists(orderId)) return NotFound();
 
-            var deletedSuccessfully = await _OrderService.DeleteAsync(id);
+            var deletedSuccessfully = await _OrderService.DeleteAsync(orderId);
 
             if (!deletedSuccessfully) return NotFound();
 
