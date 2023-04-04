@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NorthwindAPI_MiniProject.Models;
 using NorthwindAPI_MiniProject.Models.DTO;
-using static System.Net.WebRequestMethods;
 
 namespace NorthwindAPI_MiniProject.Controllers
 {
@@ -19,7 +18,7 @@ namespace NorthwindAPI_MiniProject.Controllers
         }
 
         // GET: api/Products
-        [HttpGet(Name =nameof(GetProducts))]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts()
         {
             var products = await _service.GetAllAsync();
@@ -27,14 +26,12 @@ namespace NorthwindAPI_MiniProject.Controllers
             {
                 return NotFound();
             }
-            var productDtos = products.Select(p => CreateProductLinks(Utils.ProductToDTO(p))).ToList();
-           
 
-            return productDtos;
+            return products.Select(Utils.ProductToDTO).ToList();
         }
 
         // GET: api/Products/5
-        [HttpGet("{id}", Name = nameof(GetProduct))]
+        [HttpGet("{id}")]
         public async Task<ActionResult<ProductDTO>> GetProduct(int id)
         {
             var product = await _service.GetAsync(id);
@@ -42,15 +39,12 @@ namespace NorthwindAPI_MiniProject.Controllers
             {
                 return NotFound();
             }
-            ProductDTO productDto = Utils.ProductToDTO(product);
-
-            return CreateProductLinks(productDto);
-
+            return Utils.ProductToDTO(product);
         }
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}", Name = nameof(PutProduct))]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(int id,
             [Bind("ProductId, ProductName, UnitPrice, UnitsInStock, SupplierId")] Product product)
         {
@@ -71,9 +65,9 @@ namespace NorthwindAPI_MiniProject.Controllers
 
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost(Name = nameof(PostProduct))]
+        [HttpPost]
         public async Task<ActionResult<ProductDTO>> PostProduct(
-            [Bind("ProductName, UnitPrice, UnitsInStock, SupplierId")] Product product)
+            [Bind("ProductId, ProductName, UnitPrice, UnitsInStock, SupplierId")] Product product)
         {
 
             var createdSuccessfully = await _service.CreateAsync(product);
@@ -81,11 +75,11 @@ namespace NorthwindAPI_MiniProject.Controllers
             {
                 return Problem($"Entity set 'NorthwindContext.Products'  is null or entity with id: {product.ProductId} already exists");
             }
-            return CreatedAtAction("GetProduct", new { id = product.ProductId }, CreateProductLinks(Utils.ProductToDTO(product)));
+            return CreatedAtAction("GetProduct", new { id = product.ProductId }, Utils.ProductToDTO(product));
         }
 
         // DELETE: api/Products/5
-        [HttpDelete("{id}", Name = nameof(DeleteProduct))]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
 
@@ -96,29 +90,5 @@ namespace NorthwindAPI_MiniProject.Controllers
             }
             return NoContent();
         }
-
-
-        private ProductDTO CreateProductLinks(ProductDTO product)
-        {
-            //if (Url == null) return product;
-            var idObj = new { id = product.ProductId };
-            product.Links.Add(
-                new LinkDTO(Url.Link(nameof(this.GetProduct), idObj), 
-                "self", 
-                "GET"));            
-
-            product.Links.Add(
-                new LinkDTO(Url.Link(nameof(this.PostProduct), idObj), 
-                "post_product",
-                "POST"));
-
-            product.Links.Add(
-                new LinkDTO(Url.Link(nameof(this.DeleteProduct), idObj),
-                "delete_product",
-                "DELETE"));
-
-            return product;
-        }
     }
 }
-
