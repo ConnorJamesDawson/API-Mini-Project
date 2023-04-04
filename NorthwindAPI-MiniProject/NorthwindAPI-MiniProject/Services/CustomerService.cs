@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NorthwindAPI_MiniProject.Data.Repository;
 using NorthwindAPI_MiniProject.Models;
+using System.Text.RegularExpressions;
+
 namespace NorthwindAPI_MiniProject.Services
 {
     public class CustomerService : ICustomerService<Customer>
@@ -26,6 +28,10 @@ namespace NorthwindAPI_MiniProject.Services
             }
             else
             {
+                string id = CustomerIdGenerator(entity);
+
+                entity.CustomerId = id;
+
                 _repository.Add(entity);
                 _repository.SaveAsync();
                 return true;
@@ -119,15 +125,13 @@ namespace NorthwindAPI_MiniProject.Services
 
         public async Task<bool> UpdateAsync(string id, Customer entity)
         {
-            if (!EntityExists(id))
-            {
-                return false;
-            }
+
+
 
 
 
             _repository.Update(entity);
-
+            await _repository.SaveAsync();
 
 
             try
@@ -153,6 +157,33 @@ namespace NorthwindAPI_MiniProject.Services
         private bool EntityExists(string id)
         {
             return _repository.FindAsync(id).Result != null;
+        }
+
+
+        public string CustomerIdGenerator(Customer customer)
+        {
+            var customers = GetAllAsync().Result;
+            var existingIds = new List<string>();
+            string generatedId;
+
+            foreach (var cust in customers)
+            {
+                existingIds.Add(cust.CustomerId);
+            }
+
+            Guid guid = Guid.NewGuid();
+            string guidString = guid.ToString();
+
+            do
+            {
+                if(customer.CompanyName.Length > 5)
+                    generatedId = customer.CompanyName.Substring(0,3).ToUpper() + Regex.Replace(guidString, "[0-9]", "").Replace("-", "").Substring(0, 2).ToUpper();
+                else
+                    generatedId = customer.CompanyName.Substring(0, customer.CompanyName.Length).ToUpper() + Regex.Replace(guidString, "[0-9]", "").Replace("-", "").Substring(0, 5 - customer.CompanyName.Length).ToUpper();
+
+            } while (existingIds.Contains(generatedId));
+
+            return generatedId;
         }
     }
 }

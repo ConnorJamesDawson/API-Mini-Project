@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using NorthwindAPI_MiniProject.Models;
 using NorthwindAPI_MiniProject.Data.Repository;
 using NorthwindAPI_MiniProject.Services;
+using NorthwindAPI_MiniProject.Models.DTO;
 
 namespace NorthwindAPI_MiniProject.Controllers
 {
@@ -15,11 +16,13 @@ namespace NorthwindAPI_MiniProject.Controllers
     [ApiController]
     public class CustomersController : ControllerBase
     {
-        private readonly CustomerService _customerService;
+        private readonly ICustomerService<Customer> _customerService;
+        private readonly IOrderService<Order> _orderService;
 
-        public CustomersController(ICustomerService<Customer> customerService)
+        public CustomersController(ICustomerService<Customer> customerService, IOrderService<Order> orderService)
         {
-            _customerService = (CustomerService?)customerService;
+            _customerService = customerService;
+            _orderService = orderService;
         }
 
         // GET: api/Customers
@@ -49,6 +52,15 @@ namespace NorthwindAPI_MiniProject.Controllers
             return customer;
         }
 
+        // GET: api/Customers/5/orders
+        [HttpGet("{id}/orders")]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetCustomerOrders(string id)
+        {
+            OrdersController oc = new OrdersController(_orderService);
+
+            return await oc.GetOrdersById(id);
+        }
+
         // PUT: api/Customers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -70,6 +82,9 @@ namespace NorthwindAPI_MiniProject.Controllers
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
+            string idToAssign = _customerService.CustomerIdGenerator(customer);
+            customer.CustomerId = idToAssign;
+
             await _customerService.CreateAsync(customer);
 
             return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
@@ -79,14 +94,6 @@ namespace NorthwindAPI_MiniProject.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(string id)
         {
-            //var customer = await _customerService.GetAsync(id);
-
-            //if (customer == null)
-            //{
-            //    return NotFound();
-            //}
-
-            // Delete the supplier
             await _customerService.DeleteAsync(id);
 
             return NoContent();
