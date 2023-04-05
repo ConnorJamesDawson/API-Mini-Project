@@ -35,7 +35,8 @@ namespace NorthwindAPI.Tests
             .Setup(c => c.GetAllAsync().Result)
             .Returns(orders);
 
-            var sut = new CustomersController(mockService);
+            var sut = new CustomersController(mockService, null);
+
             var result = await sut.GetCustomers();
             Assert.That(result.Value, Is.InstanceOf<IEnumerable<Customer>>());
         }
@@ -51,7 +52,8 @@ namespace NorthwindAPI.Tests
             .Setup(c => c.GetAllAsync().Result)
             .Returns(new List<Customer>());
 
-            var sut = new CustomersController(mockService);
+            var sut = new CustomersController(mockService, null);
+
             var result = await sut.GetCustomers();
             Assert.That(result.Value, Is.Empty);
         }
@@ -77,7 +79,8 @@ namespace NorthwindAPI.Tests
             .Setup(sc => sc.GetAsync("AAAA").Result)
             .Returns(customer[0]);
 
-            var sut = new CustomersController(mockService);
+            var sut = new CustomersController(mockService, null);
+
             var result = await sut.GetCustomer("AAAA");
             Assert.That(result.Value, Is.InstanceOf<Customer>());
         }
@@ -94,7 +97,8 @@ namespace NorthwindAPI.Tests
             .Setup(c => c.GetAsync("A").Result)
             .Returns<Task>(null);
 
-            var sut = new CustomersController(mockService);
+            var sut = new CustomersController(mockService, null);
+
             var result = await sut.GetCustomer("A");
             Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
         }
@@ -114,7 +118,8 @@ namespace NorthwindAPI.Tests
             mockService.Setup(c => c.DeleteAsync(It.IsAny<string>()))
                 .ReturnsAsync(true);
 
-            var sut = new CustomersController(mockService.Object);
+            var sut = new CustomersController(mockService.Object, null);
+
             var deleteResult = await sut.DeleteCustomer("A");
             var result = await sut.GetCustomer("A");
 
@@ -136,7 +141,8 @@ namespace NorthwindAPI.Tests
             mockService.Setup(c => c.DeleteAsync(It.IsAny<string>()))
                 .ReturnsAsync(false);
 
-            var sut = new CustomersController(mockService.Object);
+            var sut = new CustomersController(mockService.Object, null);
+
 
             var deleteResult = await sut.DeleteCustomer("A");
 
@@ -172,7 +178,8 @@ namespace NorthwindAPI.Tests
                 .Setup(c => c.UpdateAsync("A", It.IsAny<Customer>()))
                 .ReturnsAsync(true);
 
-            var sut = new CustomersController(mockService);
+            var sut = new CustomersController(mockService, null);
+
 
             await sut.PutCustomer("A", customer);
             await sut.PutCustomer("A", updatedCustomer);
@@ -204,7 +211,8 @@ namespace NorthwindAPI.Tests
                 .Setup(c => c.UpdateAsync("A", It.IsAny<Customer>()))
                 .ReturnsAsync(false);
 
-            var sut = new CustomersController(mockService.Object);
+            var sut = new CustomersController(mockService.Object, null);
+
             Customer updatedCustomer = new Customer
             {
                 CustomerId = "A",
@@ -239,7 +247,8 @@ namespace NorthwindAPI.Tests
                 .Setup(c => c.CreateAsync(newCustomer))
                 .ReturnsAsync(true);
 
-            var sut = new CustomersController(mockService.Object);
+            var sut = new CustomersController(mockService.Object, null);
+
 
             // Call the PostCustomer method to create the new customer
             var result = await sut.PostCustomer(newCustomer);
@@ -276,7 +285,8 @@ namespace NorthwindAPI.Tests
                 .Setup(c => c.CreateAsync(newCustomer))
                 .ReturnsAsync(false);
 
-            var sut = new CustomersController(mockService.Object);
+            var sut = new CustomersController(mockService.Object, null);
+
 
             // Call the PostCustomer method to attempt to create the new customer
             var result = await sut.PostCustomer(newCustomer);
