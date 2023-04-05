@@ -80,6 +80,7 @@ namespace NorthwindAPI_MiniProject.Services
                 return null;
             }
             return (await _repository.GetAllAsync())
+                
             .ToList();
         }
 
@@ -92,12 +93,7 @@ namespace NorthwindAPI_MiniProject.Services
                 return null;
             }
 
-
-
             var entity = await _repository.FindAsync(id);
-
-
-
 
             if (entity == null)
             {
