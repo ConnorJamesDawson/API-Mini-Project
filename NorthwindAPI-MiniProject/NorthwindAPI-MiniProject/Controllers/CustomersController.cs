@@ -82,8 +82,8 @@ namespace NorthwindAPI_MiniProject.Controllers
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
-            string idToAssign = _customerService.CustomerIdGenerator(customer);
-            customer.CustomerId = idToAssign;
+            //string idToAssign = _customerService.CustomerIdGenerator(customer);
+            //customer.CustomerId = idToAssign;
 
             await _customerService.CreateAsync(customer);
 

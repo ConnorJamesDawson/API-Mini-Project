@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using NorthwindAPI_MiniProject.Data.Repository;
 using NorthwindAPI_MiniProject.Models;
 using System.Text.RegularExpressions;
@@ -9,7 +10,7 @@ namespace NorthwindAPI_MiniProject.Services
     {
         private readonly ILogger _logger;
         private readonly ICustomerRepository<Customer> _repository;
-
+        private List<string> _customerIds = new List<string>();
 
 
         public CustomerService(ILogger<ICustomerService<Customer>> logger, ICustomerRepository<Customer> repository)
@@ -33,7 +34,8 @@ namespace NorthwindAPI_MiniProject.Services
                 entity.CustomerId = id;
 
                 _repository.Add(entity);
-                _repository.SaveAsync();
+                await _repository.SaveAsync();
+
                 return true;
             }
         }
@@ -79,10 +81,11 @@ namespace NorthwindAPI_MiniProject.Services
             {
                 return null;
             }
-            return (await _repository.GetAllAsync())
-            .ToList();
-        }
 
+            return (await _repository
+                .GetAllAsync())
+                .ToList();
+        }
 
 
         public async Task<Customer?> GetAsync(string id)
@@ -125,14 +128,8 @@ namespace NorthwindAPI_MiniProject.Services
 
         public async Task<bool> UpdateAsync(string id, Customer entity)
         {
-
-
-
-
-
             _repository.Update(entity);
             await _repository.SaveAsync();
-
 
             try
             {
@@ -149,6 +146,7 @@ namespace NorthwindAPI_MiniProject.Services
                     return true;
                 }
             }
+
             return true;
         }
 
@@ -162,28 +160,35 @@ namespace NorthwindAPI_MiniProject.Services
 
         public string CustomerIdGenerator(Customer customer)
         {
-            var customers = GetAllAsync().Result;
-            var existingIds = new List<string>();
             string generatedId;
 
-            foreach (var cust in customers)
-            {
-                existingIds.Add(cust.CustomerId);
-            }
-
-            Guid guid = Guid.NewGuid();
-            string guidString = guid.ToString();
+            _customerIds = GetCustomerIds().Result;
 
             do
             {
-                if(customer.CompanyName.Length > 5)
+                Guid guid = Guid.NewGuid();
+                string guidString = guid.ToString();
+
+                if (customer.CompanyName.Length > 5)
                     generatedId = customer.CompanyName.Substring(0,3).ToUpper() + Regex.Replace(guidString, "[0-9]", "").Replace("-", "").Substring(0, 2).ToUpper();
                 else
                     generatedId = customer.CompanyName.Substring(0, customer.CompanyName.Length).ToUpper() + Regex.Replace(guidString, "[0-9]", "").Replace("-", "").Substring(0, 5 - customer.CompanyName.Length).ToUpper();
 
-            } while (existingIds.Contains(generatedId));
+            } while (_customerIds.Contains(generatedId));
 
             return generatedId;
+        }
+
+        public async Task<List<string>> GetCustomerIds()
+        {
+            var customers = await GetAllAsync();
+
+            foreach (var cust in customers)
+            {
+                _customerIds.Add(cust.CustomerId);
+            }
+
+            return _customerIds;
         }
     }
 }
