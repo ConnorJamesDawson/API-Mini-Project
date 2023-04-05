@@ -13,5 +13,7 @@
         public string? ShipCountry { get; set; }
         public List<LinkDTO> Links = new List<LinkDTO>();
 
+        public virtual ICollection<OrderDetailsDTO> OrderDetails { get; } = new List<OrderDetailsDTO>();
+
     }
 }
