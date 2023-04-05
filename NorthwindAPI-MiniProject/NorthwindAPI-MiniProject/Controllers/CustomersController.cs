@@ -57,7 +57,7 @@ namespace NorthwindAPI_MiniProject.Controllers
         [HttpGet("{id}/orders")]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetCustomerOrders(string id)
         {
-            OrdersController oc = new OrdersController(_orderService);
+            OrdersController oc = new OrdersController(_orderService, null);
 
             return await oc.GetOrdersById(id);
         }
