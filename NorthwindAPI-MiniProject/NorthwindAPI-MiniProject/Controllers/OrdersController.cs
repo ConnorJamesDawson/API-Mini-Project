@@ -35,6 +35,19 @@ namespace NorthwindAPI_MiniProject.Controllers
                    .Select(o => Utils.OrderToDTO(o))
                    .ToList();
         }
+
+        // GET: api/Orders
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDTO>> GetOrder(int id)
+        {
+            var orders = await _OrderService.GetAsync(id);
+            if (orders == null)
+            {
+                return NotFound("Cannot find orders table in the database");
+            }
+            return Utils.OrderToDTO(orders);
+        }
+
         // GET: api/Orders/vinet
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersById(string id)

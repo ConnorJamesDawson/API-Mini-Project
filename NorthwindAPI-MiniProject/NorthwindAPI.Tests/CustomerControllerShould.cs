@@ -36,6 +36,7 @@ namespace NorthwindAPI.Tests
             .Returns(orders);
 
             var sut = new CustomersController(mockService, null);
+
             var result = await sut.GetCustomers();
             Assert.That(result.Value, Is.InstanceOf<IEnumerable<Customer>>());
         }
@@ -52,6 +53,7 @@ namespace NorthwindAPI.Tests
             .Returns(new List<Customer>());
 
             var sut = new CustomersController(mockService, null);
+
             var result = await sut.GetCustomers();
             Assert.That(result.Value, Is.Empty);
         }
@@ -78,6 +80,7 @@ namespace NorthwindAPI.Tests
             .Returns(customer[0]);
 
             var sut = new CustomersController(mockService, null);
+
             var result = await sut.GetCustomer("AAAA");
             Assert.That(result.Value, Is.InstanceOf<Customer>());
         }
@@ -95,6 +98,7 @@ namespace NorthwindAPI.Tests
             .Returns<Task>(null);
 
             var sut = new CustomersController(mockService, null);
+
             var result = await sut.GetCustomer("A");
             Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
         }
@@ -115,6 +119,7 @@ namespace NorthwindAPI.Tests
                 .ReturnsAsync(true);
 
             var sut = new CustomersController(mockService.Object, null);
+
             var deleteResult = await sut.DeleteCustomer("A");
             var result = await sut.GetCustomer("A");
 
@@ -137,6 +142,7 @@ namespace NorthwindAPI.Tests
                 .ReturnsAsync(false);
 
             var sut = new CustomersController(mockService.Object, null);
+
 
             var deleteResult = await sut.DeleteCustomer("A");
 
@@ -174,6 +180,7 @@ namespace NorthwindAPI.Tests
 
             var sut = new CustomersController(mockService, null);
 
+
             await sut.PutCustomer("A", customer);
             await sut.PutCustomer("A", updatedCustomer);
 
@@ -205,6 +212,7 @@ namespace NorthwindAPI.Tests
                 .ReturnsAsync(false);
 
             var sut = new CustomersController(mockService.Object, null);
+
             Customer updatedCustomer = new Customer
             {
                 CustomerId = "A",
@@ -240,6 +248,7 @@ namespace NorthwindAPI.Tests
                 .ReturnsAsync(true);
 
             var sut = new CustomersController(mockService.Object, null);
+
 
             // Call the PostCustomer method to create the new customer
             var result = await sut.PostCustomer(newCustomer);
@@ -277,6 +286,7 @@ namespace NorthwindAPI.Tests
                 .ReturnsAsync(false);
 
             var sut = new CustomersController(mockService.Object, null);
+
 
             // Call the PostCustomer method to attempt to create the new customer
             var result = await sut.PostCustomer(newCustomer);

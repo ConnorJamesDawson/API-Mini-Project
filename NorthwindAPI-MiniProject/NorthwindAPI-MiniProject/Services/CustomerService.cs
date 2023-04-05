@@ -164,6 +164,9 @@ namespace NorthwindAPI_MiniProject.Services
         {
             var customers = GetAllAsync().Result;
             var existingIds = new List<string>();
+            Random rand = new Random();
+            var companyNameLength = customer.CompanyName.Length;
+
             string generatedId;
 
             foreach (var cust in customers)
