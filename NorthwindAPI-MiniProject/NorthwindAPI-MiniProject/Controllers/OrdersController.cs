@@ -194,8 +194,6 @@ namespace NorthwindAPI_MiniProject.Controllers
             var order = await _OrderService.GetAsync(orderId);
             if (!OrderExists(orderId)) return NotFound();
 
-            string key = orderId.ToString() + orderDetailId.ToString();
-
             var orderdetail = await _OrderDetailService.GetAsync(orderId, orderDetailId);
 
             order.OrderDetails.Remove(orderdetail!);
