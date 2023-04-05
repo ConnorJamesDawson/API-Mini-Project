@@ -100,7 +100,7 @@ namespace NorthwindAPI_MiniProject.Controllers
 
         private ProductDTO CreateProductLinks(ProductDTO product)
         {
-            //if (Url == null) return product;
+            if (Url == null) return product;
             var idObj = new { id = product.ProductId };
             product.Links.Add(
                 new LinkDTO(Url.Link(nameof(this.GetProduct), idObj),
