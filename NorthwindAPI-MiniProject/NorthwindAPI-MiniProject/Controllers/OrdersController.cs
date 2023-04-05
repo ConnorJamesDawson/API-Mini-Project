@@ -49,7 +49,7 @@ namespace NorthwindAPI_MiniProject.Controllers
         }
 
         // GET: api/Orders/vinet
-        [HttpGet("{id}")]
+        [HttpGet("{customerId}")]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersById(string id)
         {
             var orders = await _OrderService.GetAllAsyncByCustomerId(id);
