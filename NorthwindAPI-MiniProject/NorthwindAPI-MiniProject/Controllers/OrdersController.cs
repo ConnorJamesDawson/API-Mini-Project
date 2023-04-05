@@ -50,9 +50,9 @@ namespace NorthwindAPI_MiniProject.Controllers
 
         // GET: api/Orders/vinet
         [HttpGet("{customerId}")]
-        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersById(string id)
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersById(string customerId)
         {
-            var orders = await _OrderService.GetAllAsyncByCustomerId(id);
+            var orders = await _OrderService.GetAllAsyncByCustomerId(customerId);
             if (orders == null)
             {
                 return NotFound("Cannot find orders table in the database");
