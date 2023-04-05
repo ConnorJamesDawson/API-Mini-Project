@@ -162,10 +162,11 @@ namespace NorthwindAPI_MiniProject.Services
 
         public string CustomerIdGenerator(Customer customer)
         {
-            Random rand = new Random();
             var customers = GetAllAsync().Result;
             var existingIds = new List<string>();
+            Random rand = new Random();
             var companyNameLength = customer.CompanyName.Length;
+
             string generatedId;
 
             foreach (var cust in customers)
@@ -173,19 +174,17 @@ namespace NorthwindAPI_MiniProject.Services
                 existingIds.Add(cust.CustomerId);
             }
 
-            if(companyNameLength < 5)
-            {
-                generatedId = customer.CompanyName.Replace(" ", "") + customer.ContactName.Replace(" ", "").Substring(0, 5 - companyNameLength).ToUpper();
-            }
-            else
-            {
-                generatedId = customer.CompanyName.Replace(" ", "").Substring(0, 5).ToUpper();
-            }
+            Guid guid = Guid.NewGuid();
+            string guidString = guid.ToString();
 
-            while (existingIds.Contains(generatedId))
+            do
             {
-                generatedId = customer.CompanyName.Substring(0, rand.Next(3, 5)).ToUpper() + customer.ContactName.Substring(0, rand.Next(1,3)).ToUpper();
-            }
+                if(customer.CompanyName.Length > 5)
+                    generatedId = customer.CompanyName.Substring(0,3).ToUpper() + Regex.Replace(guidString, "[0-9]", "").Replace("-", "").Substring(0, 2).ToUpper();
+                else
+                    generatedId = customer.CompanyName.Substring(0, customer.CompanyName.Length).ToUpper() + Regex.Replace(guidString, "[0-9]", "").Replace("-", "").Substring(0, 5 - customer.CompanyName.Length).ToUpper();
+
+            } while (existingIds.Contains(generatedId));
 
             return generatedId;
         }
