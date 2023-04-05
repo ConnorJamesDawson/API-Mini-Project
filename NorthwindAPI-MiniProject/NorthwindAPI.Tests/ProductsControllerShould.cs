@@ -278,7 +278,7 @@ internal class ProductsControllerShould
             UnitsInStock = 5
         };
 
-        List<Product> suppliers = new List<Product>
+        List<Product> products = new List<Product>
         {
             new Product
                 {
@@ -290,14 +290,14 @@ internal class ProductsControllerShould
 
         Mock
         .Get(mockService)
-        .Setup(sc => sc.GetAllAsync().Result)
-        .Returns(suppliers);
+        .Setup(sc => sc.CreateAsync(prod).Result)
+        .Returns(false);
 
         var sut = new ProductsController(mockService);
-        await sut.PostProduct(prod);
-        var result = await sut.GetProducts();
+        var result = await sut.PostProduct(prod);
+        
 
-        Assert.That(result.Value, Is.InstanceOf<ProblemHttpResult>());
+        Assert.That(result.Result, Is.InstanceOf<ObjectResult>());
     }
 
 }
