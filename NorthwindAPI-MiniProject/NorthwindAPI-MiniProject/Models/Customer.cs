@@ -5,7 +5,7 @@ namespace NorthwindAPI_MiniProject.Models;
 
 public partial class Customer
 {
-    public string CustomerId { get; set; } = null!;
+    public string CustomerId { get; set; } = "_____";
 
     public string CompanyName { get; set; } = null!;
 
