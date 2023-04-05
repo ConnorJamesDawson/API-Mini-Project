@@ -34,7 +34,7 @@ namespace NorthwindAPI.Tests
             .Setup(od => od.GetAllAsync().Result)
             .Returns(orders);
 
-            var sut = new OrdersController(mockService);
+            var sut = new OrdersController(mockService, null);
             var result = await sut.GetOrders();
             Assert.That(result.Value, Is.InstanceOf<IEnumerable<OrderDTO>>());
         }
@@ -51,7 +51,7 @@ namespace NorthwindAPI.Tests
             .Setup(od => od.GetAllAsync().Result)
             .Returns((List<Order>)null);
 
-            var sut = new OrdersController(mockService);
+            var sut = new OrdersController(mockService, null);
             var result = await sut.GetOrders();
             Assert.That(result.Value, Is.Null);
         }
@@ -73,10 +73,10 @@ namespace NorthwindAPI.Tests
 
             Mock
             .Get(mockService)
-            .Setup(od => od.GetAsync(1).Result)
+            .Setup(od => od.GetAsync(1, -1).Result)
             .Returns(orders[0]);
 
-            var sut = new OrdersController(mockService);
+            var sut = new OrdersController(mockService, null);
             var result = await sut.GetOrder(1);
             Assert.That(result.Value, Is.InstanceOf<OrderDTO>());
         }
@@ -90,10 +90,10 @@ namespace NorthwindAPI.Tests
 
             Mock
             .Get(mockService)
-            .Setup(od => od.GetAsync(1).Result)
+            .Setup(od => od.GetAsync(1, -1).Result)
             .Returns<Task>(null);
 
-            var sut = new OrdersController(mockService);
+            var sut = new OrdersController(mockService, null);
             var result = await sut.GetOrder(1);
             Assert.That(result.Result, Is.InstanceOf<NotFoundObjectResult>());
         }
@@ -107,14 +107,14 @@ namespace NorthwindAPI.Tests
             Order order = new Order { OrderId = 1 };
 
             mockService
-                .Setup(cs => cs.GetAsync(1).Result)
+                .Setup(cs => cs.GetAsync(1, -1).Result)
                 .Returns(order);
 
             mockService
                 .Setup(cs => cs.DeleteAsync(1))
                 .ReturnsAsync(true);
 
-            var sut = new OrdersController(mockService.Object);
+            var sut = new OrdersController(mockService.Object, null);
             var result = await sut.DeleteOrder(1);
 
             mockService.Verify(s => s.DeleteAsync(1), Times.Once);
@@ -137,10 +137,10 @@ namespace NorthwindAPI.Tests
 
             Mock
             .Get(mockService)
-            .Setup(od => od.GetAsync(1).Result)
+            .Setup(od => od.GetAsync(1, -1).Result)
             .Returns(order);
 
-            var sut = new OrdersController(mockService);
+            var sut = new OrdersController(mockService, null);
             await sut.PutOrder(1, order);
 
             var result = await sut.GetOrder(1);
@@ -177,7 +177,7 @@ namespace NorthwindAPI.Tests
             .Setup(od => od.GetAllAsync().Result)
             .Returns(suppliers);
 
-            var sut = new OrdersController(mockService);
+            var sut = new OrdersController(mockService, null);
             await sut.PostOrder(order);
             var result = await sut.GetOrders();
 

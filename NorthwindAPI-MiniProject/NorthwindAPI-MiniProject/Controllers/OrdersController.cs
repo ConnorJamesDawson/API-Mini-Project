@@ -16,10 +16,12 @@ namespace NorthwindAPI_MiniProject.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService<Order> _OrderService;
+        private readonly INorthwindService<OrderDetail> _OrderDetailService;
 
-        public OrdersController(IOrderService<Order> orderService)
+        public OrdersController(IOrderService<Order> orderService, INorthwindService<OrderDetail> orderDetailService)
         {
             _OrderService = orderService;
+            _OrderDetailService = orderDetailService;
         }
 
         // GET: api/Orders
@@ -77,19 +79,22 @@ namespace NorthwindAPI_MiniProject.Controllers
                 .ToList();
         }
 
-/*        // GET: api/Orders/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDTO>> GetOrder(int id)
+        [HttpPut("{OrderId}/OrderDetails/{ProductId}")]
+        public async Task<IActionResult> PutOrder(int orderId, int productId,
+          [Bind("UnitPrice, Quantity")] OrderDetail orderDetail)
         {
-            var order = await _OrderService.GetAsync(id);
-
-            if (order == null)
+            if (orderId != orderDetail.OrderId)
             {
-                return NotFound("Id given does not match any order in the database.");
+                return BadRequest("Product given does not have a matching Id to given arguments");
             }
 
-            return Utils.OrderToDTO(order);
-        }*/
+            if (!_OrderDetailService.UpdateAsync(orderId, orderDetail, productId).Result)
+            {
+                return BadRequest($"Cannot find Supplier with Id given to replace");
+            }
+
+            return NoContent();
+        }
 
         [HttpGet("{orderId}/OrderDetails/{odId}")]
         public async Task<ActionResult<OrderDetailsDTO>> GetSpecficOrderDetails(int orderId, int odId)
@@ -102,6 +107,21 @@ namespace NorthwindAPI_MiniProject.Controllers
             }
 
             return Utils.OrderDetailToDTO(order.OrderDetails.ElementAt(odId));
+        }
+
+        [HttpPost("{orderId}/OrderDetails")]
+        public async Task<ActionResult<OrderDetailsDTO>> PostOrderDetailThroughOrderId(int orderId, OrderDetail orderDetail)
+        {
+            var order = await _OrderService.GetAsync(orderId);
+            if (order == null)
+            {
+                return BadRequest($"The base Order given is null and has not been created.");
+            }
+            await _OrderDetailService.CreateAsync(orderDetail);
+
+            await _OrderDetailService.SaveAsync();
+
+            return CreatedAtAction("GetOrderDetails", new { id = orderDetail.OrderId }, Utils.OrderToDTO(order));
         }
 
         // GET: api/Orders/vinet/1035
@@ -162,6 +182,25 @@ namespace NorthwindAPI_MiniProject.Controllers
             if (!OrderExists(id)) return NotFound();
 
             var deletedSuccessfully = await _OrderService.DeleteAsync(id);
+
+            if (!deletedSuccessfully) return NotFound();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{orderId}/OrderDetails/{orderDetailId}")]
+        public async Task<IActionResult> DeleteOrderDetail(int orderId, int orderDetailId)
+        {
+            var order = await _OrderService.GetAsync(orderId);
+            if (!OrderExists(orderId)) return NotFound();
+
+            string key = orderId.ToString() + orderDetailId.ToString();
+
+            var orderdetail = await _OrderDetailService.GetAsync(orderId, orderDetailId);
+
+            order.OrderDetails.Remove(orderdetail!);
+
+            var deletedSuccessfully = await _OrderDetailService.DeleteAsync(orderDetailId);
 
             if (!deletedSuccessfully) return NotFound();
 
