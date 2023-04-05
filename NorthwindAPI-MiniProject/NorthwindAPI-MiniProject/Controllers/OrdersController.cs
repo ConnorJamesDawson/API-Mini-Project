@@ -34,12 +34,12 @@ namespace NorthwindAPI_MiniProject.Controllers
                 return NotFound("Cannot find orders table in the database");
             }
             return orders
-                   .Select(o => Utils.OrderToDTO(o))
+                   .Select(o => CreateOrdersLinks(Utils.OrderToDTO(o)))
                    .ToList();
         }
 
         // GET: api/Orders
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = nameof(GetOrder))]
         public async Task<ActionResult<OrderDTO>> GetOrder(int id)
         {
             var orders = await _OrderService.GetAsync(id);
@@ -47,11 +47,11 @@ namespace NorthwindAPI_MiniProject.Controllers
             {
                 return NotFound("Cannot find orders table in the database");
             }
-            return Utils.OrderToDTO(orders);
+            return CreateOrdersLinks(Utils.OrderToDTO(orders));
         }
 
-        // GET: api/Orders/vinet
-        [HttpGet("{customerId}")]
+        // GET: api/CustomerId/Orders/vinet
+        [HttpGet("{customerId}/CustomerOrders")]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersById(string customerId)
         {
             var orders = await _OrderService.GetAllAsyncByCustomerId(customerId);
@@ -60,11 +60,11 @@ namespace NorthwindAPI_MiniProject.Controllers
                 return NotFound("Cannot find orders table in the database");
             }
             return orders
-                   .Select(o => Utils.OrderToDTO(o))
+                   .Select(o => CreateOrdersLinks(Utils.OrderToDTO(o)))
                    .ToList();
         }
 
-        [HttpGet("{id}/OrderDetails")]
+        [HttpGet("{id}/OrderDetails", Name = nameof(GetOrderDetails))]
         public async Task<ActionResult<IEnumerable<OrderDetailsDTO>>> GetOrderDetails(int id)
         {
             var order = await _OrderService.GetAsync(id);
@@ -139,7 +139,7 @@ namespace NorthwindAPI_MiniProject.Controllers
 
         // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = nameof(PutOrder))]
         public async Task<IActionResult> PutOrder(int id, 
             [Bind("ShipAddrress", "ShipRegion", "ShipCity","ShipPostalCode", "ShipCountry")]Order order)
         {
@@ -176,7 +176,7 @@ namespace NorthwindAPI_MiniProject.Controllers
         }
 
         // DELETE: api/Orders/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = nameof(DeleteOrder))]
         public async Task<IActionResult> DeleteOrder(int id)
         {
             if (!OrderExists(id)) return NotFound();
@@ -210,6 +210,38 @@ namespace NorthwindAPI_MiniProject.Controllers
         private bool OrderExists(int id)
         {
             return _OrderService.GetAsync(id).Result != null;
+        }
+
+        private OrderDTO CreateOrdersLinks(OrderDTO order)
+        {
+            if (Url == null) return order;
+
+            var idObj = new { id = order.OrderId };
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.GetOrder), idObj),
+                "self",
+                "GET"));
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.DeleteOrder), idObj),
+                "delete_self",
+                "DELETE"));
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.PutOrder), idObj),
+                "update_self",
+                "UPDATE"));
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.GetOrderDetails), idObj),
+                "details",
+                "GET"));
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(CustomersController.GetCustomer), new { id = order.CustomerId}),
+                "owner",
+                "GET"));
+            return order;
         }
     }
 }

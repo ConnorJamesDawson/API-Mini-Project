@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NorthwindAPI_MiniProject.Models;
+using NorthwindAPI_MiniProject.Models.DTO;
 
 namespace NorthwindAPI_MiniProject.Controllers
 {
@@ -33,7 +34,7 @@ namespace NorthwindAPI_MiniProject.Controllers
 
         // GET: api/OrderDetails/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDetail>> GetOrderDetail(int id)
+        public async Task<ActionResult<OrderDetailsDTO>> GetOrderDetail(int id)
         {
           if (_context.OrderDetails == null)
           {
@@ -46,7 +47,7 @@ namespace NorthwindAPI_MiniProject.Controllers
                 return NotFound();
             }
 
-            return orderDetail;
+            return CreateOrderDetailsLinks(Utils.OrderDetailToDTO(orderDetail));
         }
 
         // PUT: api/OrderDetails/5
@@ -132,6 +133,18 @@ namespace NorthwindAPI_MiniProject.Controllers
         private bool OrderDetailExists(int id)
         {
             return (_context.OrderDetails?.Any(e => e.OrderId == id)).GetValueOrDefault();
+        }
+
+        private OrderDetailsDTO CreateOrderDetailsLinks(OrderDetailsDTO orderDetail)
+        {
+            if (Url == null) return orderDetail;
+
+            orderDetail.Links.Add(
+                new LinkDTO(Url.Link(nameof(OrdersController.GetOrder), new {id = orderDetail.OrderId}),
+                "order",
+                "GET"));
+
+            return orderDetail;
         }
     }
 }

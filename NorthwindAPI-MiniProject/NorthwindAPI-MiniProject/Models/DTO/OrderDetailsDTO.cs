@@ -1,4 +1,6 @@
-﻿namespace NorthwindAPI_MiniProject.Models;
+﻿using NorthwindAPI_MiniProject.Models.DTO;
+
+namespace NorthwindAPI_MiniProject.Models;
 
 public class OrderDetailsDTO
 {
@@ -10,5 +12,7 @@ public class OrderDetailsDTO
     public decimal UnitPrice { get; set; }
 
     public short Quantity { get; set; }
+    public List<LinkDTO> Links = new List<LinkDTO>();
+
 
 }
