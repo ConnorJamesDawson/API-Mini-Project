@@ -36,6 +36,10 @@ namespace NorthwindAPI_MiniProject
                 typeof(NorthwindService<>));
 
             builder.Services.AddScoped(
+                typeof(INorthwindRepository<OrderDetail>),
+                typeof(OrderDetailsRepository));
+
+            builder.Services.AddScoped(
                 typeof(ICustomerService<Customer>),
                 typeof(CustomerService));
 
