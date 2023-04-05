@@ -89,7 +89,7 @@
 
 \- GET : https://localhost:7109/api/Orders/{id}/OrderDetails - Retrieves all order details associated with the given order int id.
 
-\- GET : https://localhost:7109/api/Orders/{orderId}/OrderDetails/{odId} – Retrieves a single order detail entry associated with an order which matches the passed order int id and order details int id.
+\- GET : https://localhost:7109/api/Orders/{orderId}/OrderDetails/{odId} – Retrieves a single order detail entry associated with an order which matches the passed order int id and order details int id as there element in the List.
 
 \- GET : https://localhost:7109/api/Orders/{orderId}
 
