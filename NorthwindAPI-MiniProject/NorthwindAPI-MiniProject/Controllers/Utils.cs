@@ -35,4 +35,18 @@ public static class Utils
         UnitPrice = orderDetail.UnitPrice,
         Quantity = orderDetail.Quantity
     };
+
+    public static CustomerDTO CustomerToDTO(Customer customer) => new CustomerDTO
+    {
+        CustomerId = customer.CustomerId,
+        CompanyName = customer.CompanyName,
+        ContactName = customer.ContactName,
+        ContactTitle = customer.ContactTitle,
+        Address = customer.Address,
+        City = customer.City,
+        Region = customer.Region,
+        Country = customer.Country,
+        Phone = customer.Phone,
+        Fax = customer.Fax
+    };
 }

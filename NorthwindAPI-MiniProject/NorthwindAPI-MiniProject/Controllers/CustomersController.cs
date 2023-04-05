@@ -9,6 +9,7 @@ using NorthwindAPI_MiniProject.Models;
 using NorthwindAPI_MiniProject.Data.Repository;
 using NorthwindAPI_MiniProject.Services;
 using NorthwindAPI_MiniProject.Models.DTO;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NorthwindAPI_MiniProject.Controllers
 {
@@ -28,19 +29,19 @@ namespace NorthwindAPI_MiniProject.Controllers
 
         // GET: api/Customers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
+        public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetCustomers()
         {
-          if (_customerService == null)
-          {
-              return NotFound();
-          }
-            return (await _customerService.GetAllAsync())
-                .ToList();
+            var customers = await _customerService.GetAllAsync();
+            if (customers == null)
+            {
+                return NotFound();
+            }
+            return customers.Select(c => CreateCustomerLinks(Utils.CustomerToDTO(c))).ToList();
         }
 
         // GET: api/Customers/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Customer>> GetCustomer(string id)
+        [HttpGet("{id}", Name = nameof(GetCustomer))]
+        public async Task<ActionResult<CustomerDTO>> GetCustomer(string id)
         {
 
             var customer = await _customerService.GetAsync(id);
@@ -50,21 +51,22 @@ namespace NorthwindAPI_MiniProject.Controllers
                 return NotFound();
             }
 
-            return customer;
+            return CreateCustomerLinks(Utils.CustomerToDTO(customer));
         }
 
         // GET: api/Customers/5/orders
-        [HttpGet("{id}/orders")]
+        [HttpGet("{id}/orders", Name = nameof(GetCustomerOrders))]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetCustomerOrders(string id)
         {
-            OrdersController oc = new OrdersController(_orderService);
+            var customer = await _customerService.GetAsync(id);
+            if (customer == null) return NotFound();
 
-            return await oc.GetOrdersById(id);
+            return customer.Orders.Select(o => CreateOrdersLinks(Utils.OrderToDTO(o))).ToList();
         }
 
         // PUT: api/Customers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("{id}", Name = nameof(PutCustomer))]
         public async Task<IActionResult> PutCustomer(string id, Customer customer)
         {
             if (id != customer.CustomerId)
@@ -81,18 +83,18 @@ namespace NorthwindAPI_MiniProject.Controllers
         // POST: api/Customers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
+        public async Task<ActionResult<CustomerDTO>> PostCustomer(Customer customer)
         {
             string idToAssign = _customerService.CustomerIdGenerator(customer);
             customer.CustomerId = idToAssign;
 
             await _customerService.CreateAsync(customer);
 
-            return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
+            return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, CreateCustomerLinks(Utils.CustomerToDTO(customer)));
         }
 
         // DELETE: api/Customers/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = nameof(DeleteCustomer))]
         public async Task<IActionResult> DeleteCustomer(string id)
         {
             await _customerService.DeleteAsync(id);
@@ -102,7 +104,62 @@ namespace NorthwindAPI_MiniProject.Controllers
 
         private bool CustomerExists(string id)
         {
-            return  _customerService.GetAsync(id) != null;
+            return _customerService.GetAsync(id) != null;
+        }
+
+        private CustomerDTO CreateCustomerLinks(CustomerDTO customer)
+        {
+            var idObj = new { id = customer.CustomerId };
+
+            customer.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.GetCustomer), idObj),
+                "self",
+                "GET"));
+            customer.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.PutCustomer), idObj),
+                "update_self",
+                "PUT"));
+            customer.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.DeleteCustomer), idObj),
+                "delete_self",
+                "DELETE"));
+            customer.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.GetCustomerOrders), idObj),
+                "orders",
+                "GET"));
+            return customer;
+        }
+
+        private OrderDTO CreateOrdersLinks(OrderDTO order)
+        {
+            if (Url == null) return order;
+
+            var idObj = new { id = order.OrderId };
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(OrdersController.GetOrder), idObj),
+                "self",
+                "GET"));
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(OrdersController.DeleteOrder), idObj),
+                "delete_self",
+                "DELETE"));
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(OrdersController.PutOrder), idObj),
+                "update_self",
+                "UPDATE"));
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(OrdersController.GetOrderDetails), idObj),
+                "details",
+                "GET"));
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(CustomersController.GetCustomer), new { id = order.CustomerId }),
+                "owner",
+                "GET"));
+            return order;
         }
     }
 }
