@@ -75,7 +75,7 @@ namespace NorthwindAPI_MiniProject.Controllers
             }
 
             return order.OrderDetails
-                .Select(od => Utils.OrderDetailToDTO(od))
+                .Select(od => CreateOrderDetailsLinks(Utils.OrderDetailToDTO(od)))
                 .ToList();
         }
 
@@ -242,6 +242,22 @@ namespace NorthwindAPI_MiniProject.Controllers
                 "owner",
                 "GET"));
             return order;
+        }
+        private OrderDetailsDTO CreateOrderDetailsLinks(OrderDetailsDTO orderDetail)
+        {
+            if (Url == null) return orderDetail;
+
+            orderDetail.Links.Add(
+                new LinkDTO(Url.Link(nameof(OrdersController.GetOrder), new {id = orderDetail.OrderId}),
+                "order",
+                "GET"));
+            orderDetail.Links.Add(
+                new LinkDTO(Url.Link(nameof(ProductsController.GetProduct), new
+                { id = orderDetail.ProductId}),
+                "product",
+                "GET"));
+
+            return orderDetail;
         }
     }
 }

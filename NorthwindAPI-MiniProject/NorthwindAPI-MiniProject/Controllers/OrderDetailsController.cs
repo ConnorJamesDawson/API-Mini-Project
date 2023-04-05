@@ -143,6 +143,11 @@ namespace NorthwindAPI_MiniProject.Controllers
                 new LinkDTO(Url.Link(nameof(OrdersController.GetOrder), new {id = orderDetail.OrderId}),
                 "order",
                 "GET"));
+            orderDetail.Links.Add(
+                new LinkDTO(Url.Link(nameof(ProductsController.GetProduct), new
+                { id = orderDetail.ProductId}),
+                "product",
+                "GET"));
 
             return orderDetail;
         }
