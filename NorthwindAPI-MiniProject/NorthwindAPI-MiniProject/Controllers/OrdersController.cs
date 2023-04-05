@@ -32,7 +32,7 @@ namespace NorthwindAPI_MiniProject.Controllers
                 return NotFound("Cannot find orders table in the database");
             }
             return orders
-                   .Select(o => Utils.OrderToDTO(o))
+                   .Select(o => CreateOrdersLinks(Utils.OrderToDTO(o)))
                    .ToList();
         }
 
@@ -49,10 +49,10 @@ namespace NorthwindAPI_MiniProject.Controllers
         }
 
         // GET: api/Orders/vinet
-        [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersById(string id)
+        [HttpGet("{customerId}")]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersById(string customerId)
         {
-            var orders = await _OrderService.GetAllAsyncByCustomerId(id);
+            var orders = await _OrderService.GetAllAsyncByCustomerId(customerId);
             if (orders == null)
             {
                 return NotFound("Cannot find orders table in the database");
@@ -171,6 +171,20 @@ namespace NorthwindAPI_MiniProject.Controllers
         private bool OrderExists(int id)
         {
             return _OrderService.GetAsync(id).Result != null;
+        }
+
+        private OrderDTO CreateOrdersLinks(OrderDTO order)
+        {
+            if (Url == null) return order;
+
+            var idObj = new { id = order.OrderId };
+
+            order.Links.Add(
+                new LinkDTO(Url.Link(nameof(this.GetOrder), idObj),
+                "self",
+                "GET"));
+
+            return order;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace NorthwindAPI_MiniProject.Models
+﻿using NorthwindAPI_MiniProject.Models.DTO;
+
+namespace NorthwindAPI_MiniProject.Models
 {
     public class CustomerDTO
     {
@@ -12,6 +14,8 @@
         public string Country { get; set; }
         public string Phone { get; set; }
         public string Fax { get; set; }
+        public List<LinkDTO> Links = new List<LinkDTO>();
+
 
     }
 }
